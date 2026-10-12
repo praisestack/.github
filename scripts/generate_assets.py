@@ -367,7 +367,7 @@ def build_logo_horizontal_svg(bg=None, text_color=None):
     target_w = 780.0
     st = target_w / TOTAL_WORDMARK_WIDTH
     tx = 480.0
-    ty = 230.0
+    ty = 253.0
 
     mark = build_hard_mark(cx=240, cy_opt=175, scale=0.52)
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 400" width="1400" height="400">

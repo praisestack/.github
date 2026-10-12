@@ -1,15 +1,21 @@
 <p align="center">
-  <h1 align="center">PraiseStack</h1>
-  <p align="center">
-    <strong>Open, high-performance production and presentation tools for modern worship.</strong>
-  </p>
-  <p align="center">
-    <a href="https://praisestack.org">Website</a> •
-    <a href="https://worshipcommons.org">Worship Commons</a> •
-    <a href="#the-praisestack-ecosystem">Ecosystem</a> •
-    <a href="#architecture--principles">Philosophy</a> •
-    <a href="#contributing">Contributing</a>
-  </p>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/praisestack/.github/main/assets/logo-horizontal-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/praisestack/.github/main/assets/logo-horizontal-light.svg">
+    <img src="https://raw.githubusercontent.com/praisestack/.github/main/assets/logo-horizontal-dark.svg" alt="PraiseStack Logo" width="500">
+  </picture>
+</p>
+
+<p align="center">
+  <strong>Open, high-performance production and presentation tools for modern worship.</strong>
+</p>
+
+<p align="center">
+  <a href="https://praisestack.org">Website</a> •
+  <a href="https://worshipcommons.org">Worship Commons</a> •
+  <a href="#the-praisestack-ecosystem">Ecosystem</a> •
+  <a href="#architecture--principles">Philosophy</a> •
+  <a href="#contributing">Contributing</a>
 </p>
 
 ---

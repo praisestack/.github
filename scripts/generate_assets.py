@@ -1,0 +1,709 @@
+#!/usr/bin/env python3
+"""
+PraiseStack Brand Asset Generator
+Generates unified, pixel-perfect vector SVGs and raster PNGs / JPGs for:
+- Avatar (Icon mark with clean hard edges, optimized for circle, squircle, and square masks)
+- Logo (Stacked lockup, horizontal lockup, and icon-only)
+- Pure vector typography: "Praise" in medium, "Stack" in bold (100% consistent across SVG, PNG, and JPG)
+- Transparent background by default (works seamlessly on light and dark themes)
+- Explicit Dark (#0B0F19) and Light (#FFFFFF) schemes for JPG and fixed-background uploads.
+"""
+
+import math
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+# --- Geometry & Projection Configuration ---
+COS30 = math.cos(math.radians(30))
+SIN30 = math.sin(math.radians(30))
+
+DARK_BG = "#0B0F19"
+LIGHT_BG = "#FFFFFF"
+
+TEXT_DARK_THEME = "#F8FAFC"
+TEXT_LIGHT_THEME = "#0F172A"
+
+# Base 3D mark proportions
+L_BASE = 290.0
+H_BASE = 54.0
+W_ARM_BASE = 115.0
+
+# Vector Glyph Paths for "Praise" (Medium) and "Stack" (Bold)
+# Normalized at fontSize = 100pt (San Francisco / SF Pro Display)
+# Using direct vector curves guarantees 100% identical bold rendering across SVG, PNG, and JPG.
+PRAISE_PATH = (
+    "M 11.97 -24.06 L 11.97 -33.25 L 30.01 -33.25 Q 37.13 -33.25 41.05 -36.93 "
+    "Q 44.97 -40.61 44.97 -47.19 L 44.97 -47.29 Q 44.97 -53.92 41.05 -57.57 "
+    "Q 37.13 -61.22 30.01 -61.22 L 11.97 -61.22 L 11.97 -70.46 L 32.75 -70.46 "
+    "Q 39.68 -70.46 44.94 -67.56 Q 50.19 -64.67 53.17 -59.47 Q 56.14 -54.26 56.14 -47.37 "
+    "L 56.14 -47.27 Q 56.14 -40.37 53.17 -35.14 Q 50.19 -29.91 44.94 -26.98 "
+    "Q 39.68 -24.06 32.75 -24.06 Z M 6.48 0.0 L 6.48 -70.46 L 17.45 -70.46 L 17.45 0.0 Z "
+    "M 64.42 0.0 L 64.42 -51.35 L 75.03 -51.35 L 75.03 -42.56 L 75.26 -42.56 "
+    "Q 76.48 -47.12 79.59 -49.74 Q 82.71 -52.37 87.1 -52.37 Q 88.25 -52.37 89.21 -52.23 "
+    "Q 90.17 -52.1 90.78 -51.94 L 90.78 -42.12 Q 90.15 -42.37 88.86 -42.55 "
+    "Q 87.57 -42.72 86.01 -42.72 Q 82.64 -42.72 80.17 -41.29 Q 77.69 -39.86 76.36 -37.15 "
+    "Q 75.03 -34.44 75.03 -30.6 L 75.03 0.0 Z M 111.32 0.92 Q 106.22 0.92 102.35 -1.03 "
+    "Q 98.48 -2.98 96.32 -6.48 Q 94.16 -9.99 94.16 -14.59 L 94.16 -14.68 Q 94.16 -19.18 96.42 -22.44 "
+    "Q 98.67 -25.69 102.95 -27.59 Q 107.23 -29.48 113.3 -29.85 L 132.68 -31.0 L 132.68 -23.57 "
+    "L 114.7 -22.46 Q 109.97 -22.18 107.41 -20.2 Q 104.84 -18.22 104.84 -14.95 L 104.84 -14.86 "
+    "Q 104.84 -11.48 107.4 -9.52 Q 109.96 -7.56 114.21 -7.56 Q 117.92 -7.56 120.87 -9.08 "
+    "Q 123.81 -10.61 125.53 -13.26 Q 127.26 -15.91 127.26 -19.22 L 127.26 -34.54 "
+    "Q 127.26 -38.76 124.61 -41.18 Q 121.95 -43.6 117.04 -43.6 Q 112.49 -43.6 109.73 -41.65 "
+    "Q 106.96 -39.7 106.3 -36.61 L 106.2 -36.16 L 96.23 -36.16 L 96.28 -36.71 "
+    "Q 96.68 -41.16 99.27 -44.69 Q 101.86 -48.23 106.44 -50.3 Q 111.02 -52.37 117.33 -52.37 "
+    "Q 123.61 -52.37 128.21 -50.27 Q 132.81 -48.17 135.34 -44.36 Q 137.86 -40.54 137.86 -35.39 "
+    "L 137.86 0.0 L 127.26 0.0 L 127.26 -8.08 L 127.02 -8.08 Q 125.55 -5.34 123.16 -3.32 "
+    "Q 120.77 -1.29 117.75 -0.18 Q 114.74 0.92 111.32 0.92 Z M 148.49 0.0 L 148.49 -51.35 "
+    "L 159.1 -51.35 L 159.1 0.0 Z M 153.8 -59.26 Q 151.23 -59.26 149.43 -61.05 "
+    "Q 147.63 -62.85 147.63 -65.35 Q 147.63 -67.9 149.43 -69.67 Q 151.23 -71.44 153.8 -71.44 "
+    "Q 156.4 -71.44 158.18 -69.67 Q 159.96 -67.9 159.96 -65.35 Q 159.96 -62.85 158.18 -61.05 "
+    "Q 156.4 -59.26 153.8 -59.26 Z M 189.23 1.01 Q 182.81 1.01 178.19 -0.96 "
+    "Q 173.58 -2.93 170.94 -6.46 Q 168.31 -10.0 167.75 -14.69 L 167.7 -15.13 L 178.19 -15.13 "
+    "L 178.29 -14.66 Q 179.03 -11.12 181.73 -9.14 Q 184.43 -7.17 189.27 -7.17 Q 192.46 -7.17 194.71 -7.98 "
+    "Q 196.96 -8.8 198.17 -10.32 Q 199.39 -11.83 199.39 -13.91 L 199.39 -13.95 Q 199.39 -16.46 197.78 -17.98 "
+    "Q 196.17 -19.5 192.02 -20.49 L 183.65 -22.42 Q 178.76 -23.55 175.52 -25.49 Q 172.28 -27.42 170.66 -30.25 "
+    "Q 169.04 -33.09 169.04 -36.84 L 169.04 -36.89 Q 169.04 -41.51 171.53 -44.99 Q 174.02 -48.47 178.51 -50.42 "
+    "Q 183.0 -52.37 188.9 -52.37 Q 194.97 -52.37 199.37 -50.3 Q 203.76 -48.22 206.22 -44.7 "
+    "Q 208.67 -41.18 208.91 -36.8 L 208.95 -36.22 L 199.0 -36.22 L 198.95 -36.58 Q 198.51 -39.96 195.93 -42.07 "
+    "Q 193.35 -44.19 188.9 -44.19 Q 186.05 -44.19 183.97 -43.35 Q 181.88 -42.51 180.77 -40.99 "
+    "Q 179.65 -39.46 179.65 -37.41 L 179.65 -37.36 Q 179.65 -35.8 180.41 -34.53 Q 181.16 -33.27 182.85 -32.33 "
+    "Q 184.54 -31.39 187.26 -30.75 L 195.63 -28.82 Q 200.88 -27.63 204.06 -25.76 Q 207.23 -23.89 208.68 -21.22 "
+    "Q 210.12 -18.56 210.12 -14.85 L 210.12 -14.8 Q 210.12 -10.11 207.43 -6.54 Q 204.73 -2.98 200.01 -0.98 "
+    "Q 195.29 1.01 189.23 1.01 Z M 240.25 1.01 Q 232.7 1.01 227.26 -2.24 Q 221.82 -5.49 218.9 -11.45 "
+    "Q 215.99 -17.42 215.99 -25.52 L 215.99 -25.57 Q 215.99 -33.6 218.92 -39.63 Q 221.85 -45.67 227.17 -49.02 "
+    "Q 232.49 -52.37 239.69 -52.37 Q 246.89 -52.37 252.11 -49.15 Q 257.33 -45.93 260.15 -40.11 "
+    "Q 262.96 -34.29 262.96 -26.57 L 262.96 -22.98 L 221.25 -22.98 L 221.25 -30.48 L 257.83 -30.48 "
+    "L 252.63 -23.5 L 252.63 -27.59 Q 252.63 -33.01 250.98 -36.59 Q 249.34 -40.17 246.44 -41.94 "
+    "Q 243.53 -43.7 239.75 -43.7 Q 235.97 -43.7 232.99 -41.86 Q 230.0 -40.01 228.3 -36.41 "
+    "Q 226.59 -32.81 226.59 -27.59 L 226.59 -23.49 Q 226.59 -18.5 228.28 -14.96 Q 229.97 -11.42 233.09 -9.54 "
+    "Q 236.21 -7.65 240.48 -7.65 Q 243.59 -7.65 245.99 -8.61 Q 248.38 -9.56 249.96 -11.16 "
+    "Q 251.54 -12.76 252.19 -14.7 L 252.31 -15.09 L 262.4 -15.09 L 262.29 -14.57 Q 261.67 -11.54 259.92 -8.74 "
+    "Q 258.17 -5.93 255.34 -3.72 Q 252.51 -1.52 248.72 -0.25 Q 244.93 1.01 240.25 1.01 Z"
+)
+PRAISE_WIDTH = 265.87
+
+STACK_PATH = (
+    "M 31.59 1.22 Q 23.22 1.22 16.99 -1.23 Q 10.77 -3.69 7.2 -8.31 Q 3.64 -12.94 3.22 -19.41 "
+    "L 3.17 -20.21 L 17.09 -20.21 L 17.19 -19.65 Q 17.68 -16.94 19.65 -14.95 Q 21.63 -12.96 24.79 -11.87 "
+    "Q 27.95 -10.77 31.96 -10.77 Q 36.06 -10.77 39.03 -11.88 Q 41.99 -12.99 43.62 -15.01 "
+    "Q 45.24 -17.04 45.24 -19.73 L 45.24 -19.78 Q 45.24 -23.34 42.43 -25.37 Q 39.62 -27.39 33.06 -28.74 "
+    "L 25.61 -30.22 Q 18.68 -31.62 14.01 -34.29 Q 9.35 -36.96 7.01 -40.95 Q 4.66 -44.95 4.66 -50.24 "
+    "L 4.66 -50.29 Q 4.69 -56.74 8.14 -61.54 Q 11.6 -66.33 17.66 -69.01 Q 23.73 -71.68 31.52 -71.68 "
+    "Q 39.67 -71.68 45.61 -69.13 Q 51.54 -66.58 54.87 -61.95 Q 58.2 -57.32 58.54 -51.15 "
+    "L 58.59 -50.24 L 44.68 -50.24 L 44.6 -50.83 Q 44.24 -53.61 42.52 -55.58 Q 40.8 -57.54 37.99 -58.62 "
+    "Q 35.18 -59.69 31.52 -59.69 Q 27.76 -59.69 25.04 -58.61 Q 22.31 -57.52 20.86 -55.6 "
+    "Q 19.41 -53.69 19.41 -51.17 L 19.41 -51.12 Q 19.41 -48.9 20.65 -47.25 Q 21.9 -45.61 24.5 -44.45 "
+    "Q 27.1 -43.29 31.15 -42.46 L 38.6 -40.97 Q 46.0 -39.5 50.72 -36.91 Q 55.44 -34.33 57.71 -30.4 "
+    "Q 59.99 -26.46 59.99 -20.92 L 59.99 -20.87 Q 59.99 -14.11 56.59 -9.14 Q 53.2 -4.17 46.84 -1.48 "
+    "Q 40.48 1.22 31.59 1.22 Z M 88.55 1.07 Q 79.83 1.07 75.65 -2.58 Q 71.46 -6.23 71.46 -14.62 "
+    "L 71.46 -41.6 L 64.18 -41.6 L 64.18 -52.34 L 71.46 -52.34 L 71.46 -65.11 L 85.86 -65.11 "
+    "L 85.86 -52.34 L 95.43 -52.34 L 95.43 -41.6 L 85.86 -41.6 L 85.86 -16.19 Q 85.86 -12.52 87.49 -11.1 "
+    "Q 89.11 -9.67 92.36 -9.67 Q 93.31 -9.67 94.04 -9.74 Q 94.78 -9.81 95.43 -9.89 L 95.43 0.54 "
+    "Q 94.24 0.73 92.5 0.9 Q 90.77 1.07 88.55 1.07 Z M 118.36 0.83 Q 113.13 0.83 109.17 -1.2 "
+    "Q 105.2 -3.22 102.98 -6.8 Q 100.76 -10.38 100.76 -14.99 L 100.76 -15.06 Q 100.76 -19.85 103.15 -23.24 "
+    "Q 105.54 -26.64 110.1 -28.6 Q 114.65 -30.57 121.14 -30.98 L 141.55 -32.25 L 141.55 -23.39 "
+    "L 123.29 -22.19 Q 119.17 -21.95 117.02 -20.26 Q 114.87 -18.58 114.87 -15.8 L 114.87 -15.72 "
+    "Q 114.87 -12.84 117.08 -11.21 Q 119.29 -9.57 122.97 -9.57 Q 126.17 -9.57 128.67 -10.82 "
+    "Q 131.18 -12.06 132.63 -14.23 Q 134.08 -16.41 134.08 -19.12 L 134.08 -34.99 Q 134.08 -38.48 131.87 -40.49 "
+    "Q 129.66 -42.5 125.46 -42.5 Q 121.48 -42.5 119.13 -40.86 Q 116.77 -39.21 116.24 -36.67 "
+    "L 116.14 -36.21 L 103.1 -36.21 L 103.15 -36.79 Q 103.56 -41.65 106.37 -45.4 Q 109.18 -49.15 114.17 -51.28 "
+    "Q 119.17 -53.42 126.07 -53.42 Q 132.84 -53.42 137.83 -51.23 Q 142.82 -49.05 145.58 -45.1 "
+    "Q 148.34 -41.16 148.34 -35.89 L 148.34 0.0 L 134.08 0.0 L 134.08 -7.79 L 133.79 -7.79 "
+    "Q 132.3 -5.13 129.99 -3.19 Q 127.69 -1.25 124.74 -0.21 Q 121.8 0.83 118.36 0.83 Z "
+    "M 181.4 1.07 Q 173.44 1.07 167.64 -2.23 Q 161.84 -5.54 158.7 -11.67 Q 155.57 -17.8 155.57 -26.22 "
+    "L 155.57 -26.27 Q 155.57 -34.64 158.73 -40.73 Q 161.89 -46.83 167.66 -50.12 Q 173.44 -53.42 181.27 -53.42 "
+    "Q 188.38 -53.42 193.62 -50.76 Q 198.85 -48.1 201.81 -43.55 Q 204.76 -39.01 205.03 -33.35 "
+    "L 205.05 -33.01 L 191.8 -33.01 L 191.72 -33.45 Q 191.09 -37.18 188.49 -39.71 Q 185.89 -42.24 181.47 -42.24 "
+    "Q 177.98 -42.24 175.42 -40.31 Q 172.85 -38.38 171.46 -34.79 Q 170.07 -31.2 170.07 -26.2 "
+    "L 170.07 -26.15 Q 170.07 -21.04 171.46 -17.46 Q 172.85 -13.87 175.43 -11.99 Q 178.0 -10.11 181.52 -10.11 "
+    "Q 185.82 -10.11 188.43 -12.51 Q 191.04 -14.92 191.75 -18.9 L 191.82 -19.34 L 205.1 -19.34 "
+    "L 205.08 -19.02 Q 204.74 -13.31 201.76 -8.76 Q 198.78 -4.22 193.59 -1.57 Q 188.4 1.07 181.4 1.07 Z "
+    "M 212.43 0.0 L 212.43 -70.46 L 226.68 -70.46 L 226.68 0.0 Z M 245.36 0.0 L 229.2 -23.12 "
+    "L 238.21 -33.98 L 261.79 0.0 Z M 224.95 -15.41 L 224.95 -31.4 L 226.98 -31.4 L 244.65 -52.34 "
+    "L 260.82 -52.34 L 236.67 -24.83 L 233.5 -24.83 Z"
+)
+STACK_WIDTH = 261.11
+TOTAL_WORDMARK_WIDTH = PRAISE_WIDTH + STACK_WIDTH
+
+
+def iso(u, v, z=0, cx=512, cy=512):
+    """Convert isometric 3D coordinates (u down-right, v down-left, z up) to 2D screen coordinates."""
+    x = cx + (u - v) * COS30
+    y = cy + (u + v) * SIN30 - z
+    return (round(x, 2), round(y, 2))
+
+
+def poly_d(pts):
+    """Generate SVG path data for a closed polygon with crisp hard edges."""
+    return "M " + " L ".join(f"{p[0]} {p[1]}" for p in pts) + " Z"
+
+
+def build_defs():
+    """Shared SVG defs containing lighting filters, gemstone bevels, and theme gradients."""
+    return '''    <!-- Layer Ambient Shadow -->
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#020617" flood-opacity="0.30" />
+    </filter>
+    <!-- Radiant Amber Aura -->
+    <filter id="amberAura" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="#F59E0B" flood-opacity="0.25" />
+    </filter>
+
+    <!-- Layer 3 (Royal Blue Foundation) -->
+    <linearGradient id="blueTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="50%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="blueLeft" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E40AF" />
+      <stop offset="100%" stop-color="#172554" />
+    </linearGradient>
+    <linearGradient id="blueRight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#1E3A8A" />
+    </linearGradient>
+    <linearGradient id="blueInner" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="blueRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#93C5FD" stop-opacity="0.85" />
+      <stop offset="50%" stop-color="#60A5FA" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.75" />
+    </linearGradient>
+
+    <!-- Layer 2 (Electric Cyan Presentation Platform) -->
+    <linearGradient id="cyanTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="45%" stop-color="#0EA5E9" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <linearGradient id="cyanLeft" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0369A1" />
+      <stop offset="100%" stop-color="#082F49" />
+    </linearGradient>
+    <linearGradient id="cyanRight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0284C7" />
+      <stop offset="100%" stop-color="#075985" />
+    </linearGradient>
+    <linearGradient id="cyanInner" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <linearGradient id="cyanRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E0F2FE" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#7DD3FC" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#38BDF8" stop-opacity="0.8" />
+    </linearGradient>
+
+    <!-- Layer 1 (Amber / Gold Chevron: Praise Pinnacle) -->
+    <linearGradient id="amberTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF3C7" />
+      <stop offset="25%" stop-color="#FCD34D" />
+      <stop offset="60%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+    <linearGradient id="amberLeft" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#92400E" />
+    </linearGradient>
+    <linearGradient id="amberRight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#B45309" />
+    </linearGradient>
+    <linearGradient id="amberInner" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FBBF24" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+    <linearGradient id="amberRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
+      <stop offset="40%" stop-color="#FEF3C7" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#FDE68A" stop-opacity="0.85" />
+    </linearGradient>'''
+
+
+def build_chevron_faces(cx, cy_opt, z, scale, fills, streaks, filter_name="softShadow", is_top=False):
+    """Render a single 3D chevron layer with precision hard edges and internal crease lighting."""
+    Ls = L_BASE * scale
+    Hs = H_BASE * scale
+    Ws = W_ARM_BASE * scale
+
+    def m_iso(u, v, dz=0):
+        return iso(u, v, z + dz, cx, cy_opt)
+
+    top_face = [
+        m_iso(0, 0),
+        m_iso(Ls, 0),
+        m_iso(Ls, Ws),
+        m_iso(Ws, Ws),
+        m_iso(Ws, Ls),
+        m_iso(0, Ls),
+    ]
+    left_end = [m_iso(0, Ls), m_iso(Ws, Ls), m_iso(Ws, Ls, -Hs), m_iso(0, Ls, -Hs)]
+    right_end = [m_iso(Ls, 0), m_iso(Ls, Ws), m_iso(Ls, Ws, -Hs), m_iso(Ls, 0, -Hs)]
+    inner_west = [m_iso(Ws, Ws), m_iso(Ws, Ls), m_iso(Ws, Ls, -Hs), m_iso(Ws, Ws, -Hs)]
+    inner_east = [m_iso(Ls, Ws), m_iso(Ws, Ws), m_iso(Ws, Ws, -Hs), m_iso(Ls, Ws, -Hs)]
+
+    left_fill, right_fill, top_fill, rim_fill, inner_fill = fills
+    streak_col, sheen_col, sheen_op = streaks
+
+    return f'''    <g filter="url(#{filter_name})" stroke-linejoin="round">
+      <path d="{poly_d(inner_east)}" fill="url(#{left_fill})" />
+      <path d="{poly_d(inner_west)}" fill="url(#{inner_fill})" />
+      <path d="{poly_d(left_end)}" fill="url(#{left_fill})" />
+      <path d="{poly_d(right_end)}" fill="url(#{right_fill})" />
+      <line x1="{left_end[1][0]}" y1="{left_end[1][1]}" x2="{left_end[2][0]}" y2="{left_end[2][1]}"
+            stroke="{streak_col}" stroke-width="{2.2 * scale}" stroke-linecap="round" opacity="0.90" />
+      <line x1="{right_end[1][0]}" y1="{right_end[1][1]}" x2="{right_end[2][0]}" y2="{right_end[2][1]}"
+            stroke="{streak_col}" stroke-width="{2.2 * scale}" stroke-linecap="round" opacity="0.90" />
+      <line x1="{inner_west[0][0]}" y1="{inner_west[0][1]}" x2="{inner_west[3][0]}" y2="{inner_west[3][1]}"
+            stroke="{streak_col}" stroke-width="{1.8 * scale}" stroke-linecap="round" opacity="0.80" />
+      <path d="{poly_d(top_face)}" fill="url(#{top_fill})" stroke="url(#{rim_fill})" stroke-width="{2.0 * scale}" />
+      <path d="{poly_d(top_face)}" fill="none" stroke="{sheen_col}" stroke-width="{1.2 * scale}" opacity="{sheen_op}" />
+    </g>'''
+
+
+def build_hard_mark(cx, cy_opt, scale=1.0, z_step=80.0):
+    """Construct SVG elements for the grounded 3-chevron Trinity symbol using precision hard edges."""
+    z_bot = 0.0
+    z_mid = z_step * scale
+    z_top = (z_step * 2) * scale
+
+    blue = build_chevron_faces(
+        cx, cy_opt, z_bot, scale,
+        fills=("blueLeft", "blueRight", "blueTop", "blueRim", "blueInner"),
+        streaks=("#93C5FD", "#FFFFFF", 0.30),
+        filter_name="softShadow"
+    )
+    cyan = build_chevron_faces(
+        cx, cy_opt, z_mid, scale,
+        fills=("cyanLeft", "cyanRight", "cyanTop", "cyanRim", "cyanInner"),
+        streaks=("#E0F2FE", "#FFFFFF", 0.38),
+        filter_name="softShadow"
+    )
+    amber = build_chevron_faces(
+        cx, cy_opt, z_top, scale,
+        fills=("amberLeft", "amberRight", "amberTop", "amberRim", "amberInner"),
+        streaks=("#FEF3C7", "#FFFFFF", 0.50),
+        filter_name="amberAura",
+        is_top=True
+    )
+
+    return f'''    <!-- LAYER 3: BLUE FOUNDATION CHEVRON -->
+{blue}
+
+    <!-- LAYER 2: CYAN PLATFORM CHEVRON -->
+{cyan}
+
+    <!-- LAYER 1: AMBER PINNACLE CHEVRON -->
+{amber}'''
+
+
+# ==================== ASSET BUILDERS ====================
+
+def build_avatar_svg(bg=None):
+    """Avatar / Icon: 1024x1024 square, optically centered with hard edges, safe for circle, squircle, and square masks."""
+    bg_rect = f'  <rect width="1024" height="1024" fill="{bg}"/>\n' if bg else ''
+    mark = build_hard_mark(cx=512, cy_opt=464, scale=1.0)
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+{build_defs()}
+  </defs>
+{bg_rect}{mark}
+</svg>
+'''
+
+
+def build_logo_stacked_svg(bg=None, text_color=None):
+    """Stacked / Hero Logo: 1024x1024, mark + pure vector typography ("Stack" bold), fully mask-safe."""
+    bg_rect = f'  <rect width="1024" height="1024" fill="{bg}"/>\n' if bg else ''
+    style = ''
+    fill_attr = f'fill="{text_color}"' if text_color else 'class="wordmark"'
+    if not text_color:
+        style = '''  <style>
+    .wordmark { fill: #0F172A; }
+    @media (prefers-color-scheme: dark) {
+      .wordmark { fill: #F8FAFC; }
+    }
+  </style>\n'''
+
+    target_w = 480.0
+    st = target_w / TOTAL_WORDMARK_WIDTH
+    tx = 512.0 - (target_w / 2.0)
+    ty = 755.0
+
+    mark = build_hard_mark(cx=512, cy_opt=388, scale=0.68)
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+{build_defs()}
+  </defs>
+{style}{bg_rect}{mark}
+  <!-- Vector Wordmark: Praise (Medium) + Stack (Bold) -->
+  <g transform="translate({tx}, {ty}) scale({st})" {fill_attr}>
+    <path d="{PRAISE_PATH}" />
+    <path transform="translate({PRAISE_WIDTH}, 0)" d="{STACK_PATH}" />
+  </g>
+</svg>
+'''
+
+
+def build_logo_horizontal_svg(bg=None, text_color=None):
+    """Horizontal Logo Lockup: 1400x400, mark on left, vector wordmark on right, ideal for headers."""
+    bg_rect = f'  <rect width="1400" height="400" fill="{bg}"/>\n' if bg else ''
+    style = ''
+    fill_attr = f'fill="{text_color}"' if text_color else 'class="wordmark"'
+    if not text_color:
+        style = '''  <style>
+    .wordmark { fill: #0F172A; }
+    @media (prefers-color-scheme: dark) {
+      .wordmark { fill: #F8FAFC; }
+    }
+  </style>\n'''
+
+    target_w = 780.0
+    st = target_w / TOTAL_WORDMARK_WIDTH
+    tx = 480.0
+    ty = 230.0
+
+    mark = build_hard_mark(cx=240, cy_opt=175, scale=0.52)
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 400" width="1400" height="400">
+  <defs>
+{build_defs()}
+  </defs>
+{style}{bg_rect}{mark}
+  <!-- Vector Wordmark: Praise (Medium) + Stack (Bold) -->
+  <g transform="translate({tx}, {ty}) scale({st})" {fill_attr}>
+    <path d="{PRAISE_PATH}" />
+    <path transform="translate({PRAISE_WIDTH}, 0)" d="{STACK_PATH}" />
+  </g>
+</svg>
+'''
+
+
+# ==================== RASTER CONVERSION ENGINE ====================
+
+def convert_svg_to_raster(svg_path: Path, out_path: Path, fmt: str):
+    """Convert SVG to PNG or JPG using sips (native macOS) or fallback CLI tools."""
+    if shutil.which("sips"):
+        cmd = ["sips", "-s", "format", fmt]
+        if fmt.lower() in ("jpeg", "jpg"):
+            cmd.extend(["-s", "formatOptions", "best"])
+        cmd.extend([str(svg_path), "--out", str(out_path)])
+        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return
+
+    # Fallbacks for Linux / CI
+    if shutil.which("rsvg-convert"):
+        cmd = ["rsvg-convert", "-f", fmt, "-o", str(out_path), str(svg_path)]
+        subprocess.run(cmd, check=True)
+        return
+
+    if shutil.which("magick"):
+        cmd = ["magick", str(svg_path), str(out_path)]
+        subprocess.run(cmd, check=True)
+        return
+
+    if shutil.which("convert"):
+        cmd = ["convert", str(svg_path), str(out_path)]
+        subprocess.run(cmd, check=True)
+        return
+
+    raise RuntimeError(
+        f"No rasterizer found to convert {svg_path} to {out_path}. "
+        "Please ensure 'sips' (macOS) or 'librsvg' / 'imagemagick' is installed."
+    )
+
+
+# ==================== MAIN GENERATION ORCHESTRATION ====================
+
+def generate_all_assets(assets_dir: Path):
+    """Generate all SVG, PNG, and JPG assets into the target assets directory."""
+    assets_dir.mkdir(parents=True, exist_ok=True)
+    print(f"🎨 Generating PraiseStack Brand Assets into: {assets_dir.resolve()}")
+
+    manifest = [
+        # --- Avatar / Profile Picture (1024x1024) ---
+        ("avatar.svg", build_avatar_svg(bg=None)),
+        ("avatar-dark.svg", build_avatar_svg(bg=DARK_BG)),
+        ("avatar-light.svg", build_avatar_svg(bg=LIGHT_BG)),
+
+        # --- Stacked Logo (1024x1024) ---
+        ("logo.svg", build_logo_stacked_svg(bg=None, text_color=None)),
+        ("logo-dark.svg", build_logo_stacked_svg(bg=DARK_BG, text_color=TEXT_DARK_THEME)),
+        ("logo-light.svg", build_logo_stacked_svg(bg=LIGHT_BG, text_color=TEXT_LIGHT_THEME)),
+
+        # --- Horizontal Logo (1400x400) ---
+        ("logo-horizontal.svg", build_logo_horizontal_svg(bg=None, text_color=None)),
+        ("logo-horizontal-dark.svg", build_logo_horizontal_svg(bg=DARK_BG, text_color=TEXT_DARK_THEME)),
+        ("logo-horizontal-light.svg", build_logo_horizontal_svg(bg=LIGHT_BG, text_color=TEXT_LIGHT_THEME)),
+
+        # --- Standalone Logo Icon (1024x1024) ---
+        ("logo-icon.svg", build_avatar_svg(bg=None)),
+        ("logo-icon-dark.svg", build_avatar_svg(bg=DARK_BG)),
+        ("logo-icon-light.svg", build_avatar_svg(bg=LIGHT_BG)),
+    ]
+
+    # Write all SVGs
+    for filename, content in manifest:
+        filepath = assets_dir / filename
+        with open(filepath, "w", encoding="utf-8") as f:
+            f.write(content)
+        print(f"  ✓ Written SVG: {filename}")
+
+    # Conversion Jobs
+    conversions = [
+        # --- Avatar PNGs & JPGs ---
+        ("avatar.svg", "avatar.png", "png"),
+        ("avatar-dark.svg", "avatar-dark.png", "png"),
+        ("avatar-dark.svg", "avatar-dark.jpg", "jpeg"),
+        ("avatar-dark.svg", "avatar.jpg", "jpeg"),  # Canonical avatar.jpg default
+        ("avatar-light.svg", "avatar-light.png", "png"),
+        ("avatar-light.svg", "avatar-light.jpg", "jpeg"),
+
+        # --- Logo Stacked PNGs & JPGs ---
+        ("logo.svg", "logo.png", "png"),
+        ("logo-dark.svg", "logo-dark.png", "png"),
+        ("logo-dark.svg", "logo-dark.jpg", "jpeg"),
+        ("logo-dark.svg", "logo.jpg", "jpeg"),  # Canonical logo.jpg default
+        ("logo-light.svg", "logo-light.png", "png"),
+        ("logo-light.svg", "logo-light.jpg", "jpeg"),
+
+        # --- Logo Horizontal PNGs & JPGs ---
+        ("logo-horizontal.svg", "logo-horizontal.png", "png"),
+        ("logo-horizontal-dark.svg", "logo-horizontal-dark.png", "png"),
+        ("logo-horizontal-dark.svg", "logo-horizontal-dark.jpg", "jpeg"),
+        ("logo-horizontal-light.svg", "logo-horizontal-light.png", "png"),
+        ("logo-horizontal-light.svg", "logo-horizontal-light.jpg", "jpeg"),
+
+        # --- Logo Icon PNGs & JPGs ---
+        ("logo-icon.svg", "logo-icon.png", "png"),
+        ("logo-icon-dark.svg", "logo-icon-dark.png", "png"),
+        ("logo-icon-dark.svg", "logo-icon-dark.jpg", "jpeg"),
+        ("logo-icon-light.svg", "logo-icon-light.png", "png"),
+        ("logo-icon-light.svg", "logo-icon-light.jpg", "jpeg"),
+    ]
+
+    for src_name, dest_name, fmt in conversions:
+        src_path = assets_dir / src_name
+        dest_path = assets_dir / dest_name
+        convert_svg_to_raster(src_path, dest_path, fmt)
+        print(f"  ✓ Converted: {src_name} -> {dest_name} ({fmt.upper()})")
+
+    # Generate Preview Verification HTML
+    generate_preview_html(assets_dir)
+    print("\n✨ All brand assets generated successfully with hard edges and bold vector wordmark!")
+
+
+def generate_preview_html(assets_dir: Path):
+    """Generate an interactive HTML test showcase demonstrating round, square, and squircle masks."""
+    html_content = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PraiseStack Brand Identity Showcase</title>
+  <style>
+    :root {
+      --bg: #0B0F19;
+      --card-bg: rgba(255, 255, 255, 0.04);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --accent: #F59E0B;
+    }
+    body.light {
+      --bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --card-border: rgba(0, 0, 0, 0.1);
+      --text: #0F172A;
+      --text-muted: #64748B;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 40px 24px; transition: background 0.25s, color 0.25s; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 40px; }
+    h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 12px; }
+    p.subtitle { color: var(--text-muted); font-size: 1.1rem; }
+    .controls { display: flex; justify-content: center; gap: 12px; margin-top: 24px; }
+    button {
+      background: var(--card-bg); color: var(--text); border: 1px solid var(--card-border);
+      padding: 10px 18px; border-radius: 9999px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    button:hover { border-color: var(--accent); }
+    .section-title { font-size: 1.4rem; font-weight: 700; margin: 40px 0 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .card {
+      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px;
+      padding: 24px; display: flex; flex-direction: column; align-items: center; text-align: center;
+    }
+    .card h3 { font-size: 1rem; margin-bottom: 6px; }
+    .card p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
+    .preview-box {
+      width: 200px; height: 200px; display: flex; align-items: center; justify-content: center;
+      position: relative; margin-bottom: 16px;
+      background-image: linear-gradient(45deg, #1e293b 25%, transparent 25%), linear-gradient(-45deg, #1e293b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1e293b 75%), linear-gradient(-45deg, transparent 75%, #1e293b 75%);
+      background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    }
+    body.light .preview-box {
+      background-image: linear-gradient(45deg, #e2e8f0 25%, transparent 25%), linear-gradient(-45deg, #e2e8f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e2e8f0 75%), linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
+    }
+    .preview-img { width: 100%; height: 100%; object-fit: contain; }
+    .mask-circle { border-radius: 50%; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .mask-squircle { border-radius: 22.5%; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .mask-square { border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .hero-banner {
+      width: 100%; max-width: 800px; height: 200px; margin: 0 auto 30px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+      border: 1px solid var(--card-border);
+    }
+    .hero-banner img { max-width: 100%; max-height: 100%; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>PraiseStack Brand Identity</h1>
+      <p class="subtitle">Unified Avatar &amp; Logo System across Round, Squircle, and Square Masks</p>
+      <div class="controls">
+        <button onclick="document.body.classList.remove('light')">🌙 Dark Theme (#0B0F19)</button>
+        <button onclick="document.body.classList.add('light')">☀️ Light Theme (#FFFFFF)</button>
+      </div>
+    </header>
+
+    <div class="section-title">The Trinity Identity: Grounded Three Chevrons</div>
+    <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; margin-bottom: 30px; text-align: center;">
+      <img src="chevron-spacing-comparison.png" style="width: 100%; max-width: 1100px; height: auto; border-radius: 10px;" alt="Grounded Three Chevrons Spacing Comparison">
+      <p style="margin-top: 12px; color: var(--text-muted); font-size: 0.95rem;">Three persons in one divine being: Grounded triad pointing heavenward with zero corner gaps and precision hard edges.</p>
+    </div>
+
+    <div class="section-title">Horizontal Brand Logo Lockup</div>
+    <div class="hero-banner" style="background: var(--card-bg);">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="logo-horizontal-dark.svg">
+        <source media="(prefers-color-scheme: light)" srcset="logo-horizontal-light.svg">
+        <img src="logo-horizontal.svg" alt="PraiseStack Logo Horizontal">
+      </picture>
+    </div>
+
+    <div class="section-title">Avatar / Icon Mask Adaptation (Hard Edges)</div>
+    <div class="grid">
+      <div class="card">
+        <h3>Circle Mask (Round)</h3>
+        <p>GitHub, Discord, Google, Twitter</p>
+        <div class="preview-box mask-circle">
+          <img class="preview-img" src="avatar.svg" alt="Avatar Round">
+        </div>
+        <code>avatar.svg</code>
+      </div>
+
+      <div class="card">
+        <h3>Squircle Mask (Apple / Org)</h3>
+        <p>macOS, iOS icons, GitHub Organizations</p>
+        <div class="preview-box mask-squircle">
+          <img class="preview-img" src="avatar.svg" alt="Avatar Squircle">
+        </div>
+        <code>avatar.svg</code>
+      </div>
+
+      <div class="card">
+        <h3>Square Mask (Standard)</h3>
+        <p>Favicons, app stores, traditional tiles</p>
+        <div class="preview-box mask-square">
+          <img class="preview-img" src="avatar.svg" alt="Avatar Square">
+        </div>
+        <code>avatar.svg</code>
+      </div>
+    </div>
+
+    <div class="section-title">Stacked Logo Mask Adaptation (Bold "Stack")</div>
+    <div class="grid">
+      <div class="card">
+        <h3>Circle Mask (Stacked)</h3>
+        <p>Icon + Typography inside circle</p>
+        <div class="preview-box mask-circle">
+          <img class="preview-img" src="logo.svg" alt="Logo Stacked Circle">
+        </div>
+        <code>logo.svg</code>
+      </div>
+
+      <div class="card">
+        <h3>Squircle Mask (Stacked)</h3>
+        <p>App Store / macOS app badge</p>
+        <div class="preview-box mask-squircle">
+          <img class="preview-img" src="logo.svg" alt="Logo Stacked Squircle">
+        </div>
+        <code>logo.svg</code>
+      </div>
+
+      <div class="card">
+        <h3>Square Mask (Stacked)</h3>
+        <p>Brand card / Splash screen</p>
+        <div class="preview-box mask-square">
+          <img class="preview-img" src="logo.svg" alt="Logo Stacked Square">
+        </div>
+        <code>logo.svg</code>
+      </div>
+    </div>
+
+    <div class="section-title">Raster Outputs (PNG &amp; JPG)</div>
+    <div class="grid">
+      <div class="card">
+        <h3>avatar-dark.jpg</h3>
+        <p>Dark scheme JPG for services without alpha</p>
+        <div class="preview-box mask-circle">
+          <img class="preview-img" src="avatar-dark.jpg" alt="Avatar Dark JPG">
+        </div>
+        <code>avatar-dark.jpg</code>
+      </div>
+
+      <div class="card">
+        <h3>avatar-light.jpg</h3>
+        <p>Light scheme JPG for services without alpha</p>
+        <div class="preview-box mask-circle">
+          <img class="preview-img" src="avatar-light.jpg" alt="Avatar Light JPG">
+        </div>
+        <code>avatar-light.jpg</code>
+      </div>
+
+      <div class="card">
+        <h3>logo-dark.jpg</h3>
+        <p>Stacked Dark JPG upload ready (Bold "Stack")</p>
+        <div class="preview-box mask-squircle">
+          <img class="preview-img" src="logo-dark.jpg" alt="Logo Dark JPG">
+        </div>
+        <code>logo-dark.jpg</code>
+      </div>
+
+      <div class="card">
+        <h3>logo-light.jpg</h3>
+        <p>Stacked Light JPG upload ready (Bold "Stack")</p>
+        <div class="preview-box mask-squircle">
+          <img class="preview-img" src="logo-light.jpg" alt="Logo Light JPG">
+        </div>
+        <code>logo-light.jpg</code>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+'''
+    with open(assets_dir / "preview.html", "w", encoding="utf-8") as f:
+        f.write(html_content)
+    print("  ✓ Written Interactive Preview: preview.html")
+
+
+if __name__ == "__main__":
+    script_dir = Path(__file__).resolve().parent
+    if (script_dir.parent / "assets").exists() or script_dir.name == "scripts":
+        target_dir = script_dir.parent / "assets"
+    else:
+        target_dir = Path("assets")
+
+    if len(sys.argv) > 1:
+        target_dir = Path(sys.argv[1])
+
+    generate_all_assets(target_dir)

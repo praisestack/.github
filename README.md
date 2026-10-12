@@ -1,9 +1,5 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/praisestack/.github/main/assets/logo-horizontal-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/praisestack/.github/main/assets/logo-horizontal-light.svg">
-    <img src="https://raw.githubusercontent.com/praisestack/.github/main/assets/logo-horizontal-dark.svg" alt="PraiseStack Logo" width="500">
-  </picture>
+  <img src="https://raw.githubusercontent.com/praisestack/.github/main/assets/logo-horizontal.svg" alt="PraiseStack Logo" width="500">
 </p>
 
 <p align="center">

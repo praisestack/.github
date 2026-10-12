@@ -325,6 +325,7 @@ def build_logo_stacked_svg(bg=None, text_color=None):
     fill_attr = f'fill="{text_color}"' if text_color else 'class="wordmark"'
     if not text_color:
         style = '''  <style>
+    :root { color-scheme: light dark; }
     .wordmark { fill: #0F172A; }
     @media (prefers-color-scheme: dark) {
       .wordmark { fill: #F8FAFC; }
@@ -358,6 +359,7 @@ def build_logo_horizontal_svg(bg=None, text_color=None):
     fill_attr = f'fill="{text_color}"' if text_color else 'class="wordmark"'
     if not text_color:
         style = '''  <style>
+    :root { color-scheme: light dark; }
     .wordmark { fill: #0F172A; }
     @media (prefers-color-scheme: dark) {
       .wordmark { fill: #F8FAFC; }

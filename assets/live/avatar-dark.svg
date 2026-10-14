@@ -1,0 +1,174 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Layer Ambient Shadow -->
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#020617" flood-opacity="0.30" />
+    </filter>
+    <!-- Radiant Amber Aura (PraiseStack Org Pinnacle) -->
+    <filter id="amberAura" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="#F59E0B" flood-opacity="0.25" />
+    </filter>
+    <!-- Radiant Broadcast Scarlet Aura (Praise Live Monolithic Column) -->
+    <filter id="liveRedAura" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#DC2626" flood-opacity="0.35" />
+    </filter>
+
+    <!-- Layer 3 (Royal Blue Foundation) -->
+    <linearGradient id="blueTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="50%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="blueLeft" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E40AF" />
+      <stop offset="100%" stop-color="#172554" />
+    </linearGradient>
+    <linearGradient id="blueRight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#1E3A8A" />
+    </linearGradient>
+    <linearGradient id="blueInner" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="blueRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#93C5FD" stop-opacity="0.85" />
+      <stop offset="50%" stop-color="#60A5FA" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.75" />
+    </linearGradient>
+
+    <!-- Layer 2 (Electric Cyan Presentation Platform) -->
+    <linearGradient id="cyanTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="45%" stop-color="#0EA5E9" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <linearGradient id="cyanLeft" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0369A1" />
+      <stop offset="100%" stop-color="#082F49" />
+    </linearGradient>
+    <linearGradient id="cyanRight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0284C7" />
+      <stop offset="100%" stop-color="#075985" />
+    </linearGradient>
+    <linearGradient id="cyanInner" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <linearGradient id="cyanRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E0F2FE" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#7DD3FC" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#38BDF8" stop-opacity="0.8" />
+    </linearGradient>
+
+    <!-- Layer 1 (Amber / Gold Pinnacle: Worship & Reverence) -->
+    <linearGradient id="amberTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF3C7" />
+      <stop offset="25%" stop-color="#FCD34D" />
+      <stop offset="60%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+    <linearGradient id="amberLeft" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#92400E" />
+    </linearGradient>
+    <linearGradient id="amberRight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#B45309" />
+    </linearGradient>
+    <linearGradient id="amberInner" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FBBF24" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+    <linearGradient id="amberRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
+      <stop offset="40%" stop-color="#FEF3C7" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#FDE68A" stop-opacity="0.85" />
+    </linearGradient>
+
+    <!-- Praise Live: Monolithic Live Production Column Gradients (Complementary Crimson/Coral) -->
+    <linearGradient id="queueTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FECACA" />
+      <stop offset="20%" stop-color="#F87171" />
+      <stop offset="60%" stop-color="#EF4444" />
+      <stop offset="100%" stop-color="#B91C1C" />
+    </linearGradient>
+    <linearGradient id="queueLeft" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#DC2626" />
+      <stop offset="100%" stop-color="#7F1D1D" />
+    </linearGradient>
+    <linearGradient id="queueRight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#EF4444" />
+      <stop offset="100%" stop-color="#991B1B" />
+    </linearGradient>
+    <linearGradient id="queueRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
+      <stop offset="40%" stop-color="#FEE2E2" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#FECACA" stop-opacity="0.90" />
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="#0B0F19"/>
+    <!-- LAYER 3: BLUE FOUNDATION CHEVRON -->
+    <g filter="url(#softShadow)" stroke-linejoin="round">
+      <path d="M 642.34 607.03 L 512.0 531.78 L 512.0 578.22 L 642.34 653.47 Z" fill="url(#blueLeft)" />
+      <path d="M 512.0 531.78 L 381.66 607.03 L 381.66 653.47 L 512.0 578.22 Z" fill="url(#blueInner)" />
+      <path d="M 296.01 557.58 L 381.66 607.03 L 381.66 653.47 L 296.01 604.02 Z" fill="url(#blueLeft)" />
+      <path d="M 727.99 557.58 L 642.34 607.03 L 642.34 653.47 L 727.99 604.02 Z" fill="url(#blueRight)" />
+      <line x1="381.66" y1="607.03" x2="381.66" y2="653.47"
+            stroke="#93C5FD" stroke-width="1.8920000000000001" stroke-linecap="round" opacity="0.90" />
+      <line x1="642.34" y1="607.03" x2="642.34" y2="653.47"
+            stroke="#93C5FD" stroke-width="1.8920000000000001" stroke-linecap="round" opacity="0.90" />
+      <line x1="512.0" y1="531.78" x2="512.0" y2="578.22"
+            stroke="#93C5FD" stroke-width="1.548" stroke-linecap="round" opacity="0.80" />
+      <path d="M 512.0 432.88 L 727.99 557.58 L 642.34 607.03 L 512.0 531.78 L 381.66 607.03 L 296.01 557.58 Z" fill="url(#blueTop)" stroke="url(#blueRim)" stroke-width="1.72" />
+      <path d="M 512.0 432.88 L 727.99 557.58 L 642.34 607.03 L 512.0 531.78 L 381.66 607.03 L 296.01 557.58 Z" fill="none" stroke="#FFFFFF" stroke-width="1.032" opacity="0.3" />
+    </g>
+
+    <!-- LAYER 2: CYAN PLATFORM CHEVRON -->
+    <g filter="url(#softShadow)" stroke-linejoin="round">
+      <path d="M 642.34 538.23 L 512.0 462.98 L 512.0 509.42 L 642.34 584.67 Z" fill="url(#cyanLeft)" />
+      <path d="M 512.0 462.98 L 381.66 538.23 L 381.66 584.67 L 512.0 509.42 Z" fill="url(#cyanInner)" />
+      <path d="M 296.01 488.78 L 381.66 538.23 L 381.66 584.67 L 296.01 535.22 Z" fill="url(#cyanLeft)" />
+      <path d="M 727.99 488.78 L 642.34 538.23 L 642.34 584.67 L 727.99 535.22 Z" fill="url(#cyanRight)" />
+      <line x1="381.66" y1="538.23" x2="381.66" y2="584.67"
+            stroke="#E0F2FE" stroke-width="1.8920000000000001" stroke-linecap="round" opacity="0.90" />
+      <line x1="642.34" y1="538.23" x2="642.34" y2="584.67"
+            stroke="#E0F2FE" stroke-width="1.8920000000000001" stroke-linecap="round" opacity="0.90" />
+      <line x1="512.0" y1="462.98" x2="512.0" y2="509.42"
+            stroke="#E0F2FE" stroke-width="1.548" stroke-linecap="round" opacity="0.80" />
+      <path d="M 512.0 364.08 L 727.99 488.78 L 642.34 538.23 L 512.0 462.98 L 381.66 538.23 L 296.01 488.78 Z" fill="url(#cyanTop)" stroke="url(#cyanRim)" stroke-width="1.72" />
+      <path d="M 512.0 364.08 L 727.99 488.78 L 642.34 538.23 L 512.0 462.98 L 381.66 538.23 L 296.01 488.78 Z" fill="none" stroke="#FFFFFF" stroke-width="1.032" opacity="0.38" />
+    </g>
+
+    <!-- LAYER 1: AMBER PINNACLE CHEVRON -->
+    <g filter="url(#amberAura)" stroke-linejoin="round">
+      <path d="M 642.34 469.43 L 512.0 394.18 L 512.0 440.62 L 642.34 515.87 Z" fill="url(#amberLeft)" />
+      <path d="M 512.0 394.18 L 381.66 469.43 L 381.66 515.87 L 512.0 440.62 Z" fill="url(#amberInner)" />
+      <path d="M 296.01 419.98 L 381.66 469.43 L 381.66 515.87 L 296.01 466.42 Z" fill="url(#amberLeft)" />
+      <path d="M 727.99 419.98 L 642.34 469.43 L 642.34 515.87 L 727.99 466.42 Z" fill="url(#amberRight)" />
+      <line x1="381.66" y1="469.43" x2="381.66" y2="515.87"
+            stroke="#FEF3C7" stroke-width="1.8920000000000001" stroke-linecap="round" opacity="0.90" />
+      <line x1="642.34" y1="469.43" x2="642.34" y2="515.87"
+            stroke="#FEF3C7" stroke-width="1.8920000000000001" stroke-linecap="round" opacity="0.90" />
+      <line x1="512.0" y1="394.18" x2="512.0" y2="440.62"
+            stroke="#FEF3C7" stroke-width="1.548" stroke-linecap="round" opacity="0.80" />
+      <path d="M 512.0 295.28 L 727.99 419.98 L 642.34 469.43 L 512.0 394.18 L 381.66 469.43 L 296.01 419.98 Z" fill="url(#amberTop)" stroke="url(#amberRim)" stroke-width="1.72" />
+      <path d="M 512.0 295.28 L 727.99 419.98 L 642.34 469.43 L 512.0 394.18 L 381.66 469.43 L 296.01 419.98 Z" fill="none" stroke="#FFFFFF" stroke-width="1.032" opacity="0.5" />
+    </g>
+    <!-- LIVE PRODUCTION MONOLITHIC COLUMN (ALIGNED TO 3D BOUNDING CUBE CORNER) -->
+    <g filter="url(#liveRedAura)" stroke-linejoin="round">
+      <path d="M 420.39 491.79 L 512.0 544.68 L 512.0 728.72 L 420.39 675.83 Z" fill="url(#queueLeft)" />
+      <path d="M 603.61 491.79 L 512.0 544.68 L 512.0 728.72 L 603.61 675.83 Z" fill="url(#queueRight)" />
+      <!-- Vertical Corner Seam -->
+      <line x1="512.0" y1="544.68" x2="512.0" y2="728.72"
+            stroke="#FECACA" stroke-width="2.064" stroke-linecap="round" opacity="0.95" />
+      <!-- Outer Vertical Edges -->
+      <line x1="420.39" y1="491.79" x2="420.39" y2="675.83"
+            stroke="#FECACA" stroke-width="1.3760000000000001" stroke-linecap="round" opacity="0.65" />
+      <line x1="603.61" y1="491.79" x2="603.61" y2="675.83"
+            stroke="#FECACA" stroke-width="1.3760000000000001" stroke-linecap="round" opacity="0.65" />
+      <!-- Top Face -->
+      <path d="M 512.0 438.9 L 603.61 491.79 L 512.0 544.68 L 420.39 491.79 Z" fill="url(#queueTop)" stroke="url(#queueRim)" stroke-width="1.72" />
+      <path d="M 512.0 438.9 L 603.61 491.79 L 512.0 544.68 L 420.39 491.79 Z" fill="none" stroke="#FFFFFF" stroke-width="1.032" opacity="0.60" />
+    </g>
+</svg>

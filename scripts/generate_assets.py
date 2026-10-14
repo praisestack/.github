@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
 """
-PraiseStack Brand Asset Generator
+PraiseStack & Product Brand Asset Generator
 Generates unified, pixel-perfect vector SVGs and raster PNGs / JPGs for:
+- PraiseStack (Organization Level):
+  Royal Blue Foundation + Electric Cyan Platform + Amber Pinnacle
+- Praise Live (Product Level):
+  Royal Blue Foundation + Electric Cyan Platform + Amber Pinnacle +
+  Monolithic Live Production Column (aligned to the outer 3D corner of the bounding cube)
 - Avatar (Icon mark with clean hard edges, optimized for circle, squircle, and square masks)
 - Logo (Stacked lockup, horizontal lockup, and icon-only)
-- Pure vector typography: "Praise" in medium, "Stack" in bold (100% consistent across SVG, PNG, and JPG)
+- Pure vector typography: "Praise" (medium), "Stack" / "Live" (bold)
 - Transparent background by default (works seamlessly on light and dark themes)
 - Explicit Dark (#0B0F19) and Light (#FFFFFF) schemes for JPG and fixed-background uploads.
 """
 
+import argparse
 import math
 import os
 import shutil
@@ -30,10 +36,11 @@ TEXT_LIGHT_THEME = "#0F172A"
 L_BASE = 290.0
 H_BASE = 54.0
 W_ARM_BASE = 115.0
+Z_STEP_BASE = 80.0
+GAP_BASE = Z_STEP_BASE - H_BASE  # 26.0
 
-# Vector Glyph Paths for "Praise" (Medium) and "Stack" (Bold)
+# Vector Glyph Paths for "Praise" (Medium), "Stack" (Bold), and "Live" (Bold)
 # Normalized at fontSize = 100pt (San Francisco / SF Pro Display)
-# Using direct vector curves guarantees 100% identical bold rendering across SVG, PNG, and JPG.
 PRAISE_PATH = (
     "M 11.97 -24.06 L 11.97 -33.25 L 30.01 -33.25 Q 37.13 -33.25 41.05 -36.93 "
     "Q 44.97 -40.61 44.97 -47.19 L 44.97 -47.29 Q 44.97 -53.92 41.05 -57.57 "
@@ -126,7 +133,30 @@ STACK_PATH = (
     "L 260.82 -52.34 L 236.67 -24.83 L 233.5 -24.83 Z"
 )
 STACK_WIDTH = 261.11
-TOTAL_WORDMARK_WIDTH = PRAISE_WIDTH + STACK_WIDTH
+TOTAL_STACK_WORDMARK_WIDTH = PRAISE_WIDTH + STACK_WIDTH
+
+LIVE_PATH = (
+    "M 5.86 0.00 L 5.86 -70.46 L 20.61 -70.46 L 20.61 -12.16 L 51.42 -12.16 L 51.42 0.00 Z "
+    "M 59.20 0.00 L 59.20 -52.34 L 73.46 -52.34 L 73.46 0.00 Z "
+    "M 66.33 -59.06 Q 63.13 -59.06 60.93 -61.25 Q 58.72 -63.45 58.72 -66.48 Q 58.72 -69.56 "
+    "60.93 -71.73 Q 63.13 -73.90 66.33 -73.90 Q 69.56 -73.90 71.75 -71.73 Q 73.95 -69.56 "
+    "73.95 -66.48 Q 73.95 -63.45 71.75 -61.25 Q 69.56 -59.06 66.33 -59.06 Z "
+    "M 96.80 0.00 L 78.69 -52.34 L 93.95 -52.34 L 104.86 -12.60 L 105.15 -12.60 L 115.97 -52.34 "
+    "L 130.86 -52.34 L 112.89 0.00 Z "
+    "M 157.81 1.07 Q 149.80 1.07 144.03 -2.22 Q 138.26 -5.52 135.16 -11.62 Q 132.06 -17.72 "
+    "132.06 -26.07 L 132.06 -26.12 Q 132.06 -34.45 135.16 -40.58 Q 138.26 -46.70 143.91 -50.06 "
+    "Q 149.56 -53.42 157.23 -53.42 Q 164.89 -53.42 170.48 -50.16 Q 176.07 -46.90 179.11 -40.99 "
+    "Q 182.15 -35.08 182.15 -27.17 L 182.15 -22.78 L 139.06 -22.78 L 139.06 -31.76 L 175.42 -31.76 "
+    "L 168.65 -23.36 L 168.65 -28.86 Q 168.65 -33.45 167.24 -36.55 Q 165.82 -39.65 163.31 -41.21 "
+    "Q 160.79 -42.77 157.47 -42.77 Q 154.15 -42.77 151.59 -41.16 Q 149.02 -39.55 147.57 -36.44 "
+    "Q 146.12 -33.33 146.12 -28.86 L 146.12 -23.32 Q 146.12 -18.99 147.57 -15.92 Q 149.02 -12.84 "
+    "151.71 -11.21 Q 154.39 -9.57 158.11 -9.57 Q 161.04 -9.57 163.18 -10.49 Q 165.33 -11.40 "
+    "166.69 -12.82 Q 168.04 -14.23 168.53 -15.72 L 168.63 -16.02 L 181.71 -16.02 L 181.59 -15.45 "
+    "Q 180.98 -12.57 179.28 -9.66 Q 177.59 -6.74 174.68 -4.30 Q 171.78 -1.86 167.59 -0.39 "
+    "Q 163.40 1.07 157.81 1.07 Z"
+)
+LIVE_WIDTH = 182.15
+TOTAL_LIVE_WORDMARK_WIDTH = PRAISE_WIDTH + LIVE_WIDTH
 
 
 def iso(u, v, z=0, cx=512, cy=512):
@@ -147,9 +177,13 @@ def build_defs():
     <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#020617" flood-opacity="0.30" />
     </filter>
-    <!-- Radiant Amber Aura -->
+    <!-- Radiant Amber Aura (PraiseStack Org Pinnacle) -->
     <filter id="amberAura" x="-30%" y="-30%" width="160%" height="160%">
       <feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="#F59E0B" flood-opacity="0.25" />
+    </filter>
+    <!-- Radiant Broadcast Scarlet Aura (Praise Live Monolithic Column) -->
+    <filter id="liveRedAura" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#DC2626" flood-opacity="0.35" />
     </filter>
 
     <!-- Layer 3 (Royal Blue Foundation) -->
@@ -200,7 +234,7 @@ def build_defs():
       <stop offset="100%" stop-color="#38BDF8" stop-opacity="0.8" />
     </linearGradient>
 
-    <!-- Layer 1 (Amber / Gold Chevron: Praise Pinnacle) -->
+    <!-- Layer 1 (Amber / Gold Pinnacle: Worship & Reverence) -->
     <linearGradient id="amberTop" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#FEF3C7" />
       <stop offset="25%" stop-color="#FCD34D" />
@@ -223,6 +257,27 @@ def build_defs():
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
       <stop offset="40%" stop-color="#FEF3C7" stop-opacity="0.8" />
       <stop offset="100%" stop-color="#FDE68A" stop-opacity="0.85" />
+    </linearGradient>
+
+    <!-- Praise Live: Monolithic Live Production Column Gradients (Complementary Crimson/Coral) -->
+    <linearGradient id="queueTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FECACA" />
+      <stop offset="20%" stop-color="#F87171" />
+      <stop offset="60%" stop-color="#EF4444" />
+      <stop offset="100%" stop-color="#B91C1C" />
+    </linearGradient>
+    <linearGradient id="queueLeft" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#DC2626" />
+      <stop offset="100%" stop-color="#7F1D1D" />
+    </linearGradient>
+    <linearGradient id="queueRight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#EF4444" />
+      <stop offset="100%" stop-color="#991B1B" />
+    </linearGradient>
+    <linearGradient id="queueRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
+      <stop offset="40%" stop-color="#FEE2E2" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#FECACA" stop-opacity="0.90" />
     </linearGradient>'''
 
 
@@ -267,8 +322,52 @@ def build_chevron_faces(cx, cy_opt, z, scale, fills, streaks, filter_name="softS
     </g>'''
 
 
-def build_hard_mark(cx, cy_opt, scale=1.0, z_step=80.0):
-    """Construct SVG elements for the grounded 3-chevron Trinity symbol using precision hard edges."""
+def build_monolithic_column(cx, cy, scale, filter_name="liveRedAura"):
+    """
+    Renders the monolithic Live Production Column positioned down in 2D space
+    so its outer edges align perfectly with the outer 3D corner of the bounding cube (L_BASE, L_BASE).
+    Height spans from the Blue foundation base (z = -Hs) to the Amber pinnacle top (z = 2*z_step).
+    """
+    u0 = (W_ARM_BASE + 2 * GAP_BASE) * scale
+    v0 = (W_ARM_BASE + 2 * GAP_BASE) * scale
+    u1 = L_BASE * scale
+    v1 = L_BASE * scale
+
+    z_step_s = Z_STEP_BASE * scale
+    Hs = H_BASE * scale
+    z_top = z_step_s * 2
+    z_bot = -Hs
+
+    def m_iso(u, v, z):
+        return iso(u, v, z, cx, cy)
+
+    top_face = [m_iso(u0, v0, z_top), m_iso(u1, v0, z_top), m_iso(u1, v1, z_top), m_iso(u0, v1, z_top)]
+    left_face = [m_iso(u0, v1, z_top), m_iso(u1, v1, z_top), m_iso(u1, v1, z_bot), m_iso(u0, v1, z_bot)]
+    right_face = [m_iso(u1, v0, z_top), m_iso(u1, v1, z_top), m_iso(u1, v1, z_bot), m_iso(u1, v0, z_bot)]
+
+    return f'''    <!-- LIVE PRODUCTION MONOLITHIC COLUMN (ALIGNED TO 3D BOUNDING CUBE CORNER) -->
+    <g filter="url(#{filter_name})" stroke-linejoin="round">
+      <path d="{poly_d(left_face)}" fill="url(#queueLeft)" />
+      <path d="{poly_d(right_face)}" fill="url(#queueRight)" />
+      <!-- Vertical Corner Seam -->
+      <line x1="{left_face[1][0]}" y1="{left_face[1][1]}" x2="{left_face[2][0]}" y2="{left_face[2][1]}"
+            stroke="#FECACA" stroke-width="{2.4 * scale}" stroke-linecap="round" opacity="0.95" />
+      <!-- Outer Vertical Edges -->
+      <line x1="{left_face[0][0]}" y1="{left_face[0][1]}" x2="{left_face[3][0]}" y2="{left_face[3][1]}"
+            stroke="#FECACA" stroke-width="{1.6 * scale}" stroke-linecap="round" opacity="0.65" />
+      <line x1="{right_face[0][0]}" y1="{right_face[0][1]}" x2="{right_face[3][0]}" y2="{right_face[3][1]}"
+            stroke="#FECACA" stroke-width="{1.6 * scale}" stroke-linecap="round" opacity="0.65" />
+      <!-- Top Face -->
+      <path d="{poly_d(top_face)}" fill="url(#queueTop)" stroke="url(#queueRim)" stroke-width="{2.0 * scale}" />
+      <path d="{poly_d(top_face)}" fill="none" stroke="#FFFFFF" stroke-width="{1.2 * scale}" opacity="0.60" />
+    </g>'''
+
+
+def build_hard_mark(cx, cy_opt, scale=1.0, z_step=80.0, variant="praisestack"):
+    """
+    Construct SVG elements for the grounded 3-chevron Trinity symbol.
+    When variant='live', also renders the Monolithic Live Production Column in the 3D corner.
+    """
     z_bot = 0.0
     z_mid = z_step * scale
     z_top = (z_step * 2) * scale
@@ -293,6 +392,10 @@ def build_hard_mark(cx, cy_opt, scale=1.0, z_step=80.0):
         is_top=True
     )
 
+    column_element = ""
+    if variant.lower() in ("live", "praiselive"):
+        column_element = "\n" + build_monolithic_column(cx, cy_opt, scale)
+
     return f'''    <!-- LAYER 3: BLUE FOUNDATION CHEVRON -->
 {blue}
 
@@ -300,15 +403,27 @@ def build_hard_mark(cx, cy_opt, scale=1.0, z_step=80.0):
 {cyan}
 
     <!-- LAYER 1: AMBER PINNACLE CHEVRON -->
-{amber}'''
+{amber}{column_element}'''
 
 
 # ==================== ASSET BUILDERS ====================
 
-def build_avatar_svg(bg=None):
+def build_avatar_svg(bg=None, variant="praisestack"):
     """Avatar / Icon: 1024x1024 square, optically centered with hard edges, safe for circle, squircle, and square masks."""
     bg_rect = f'  <rect width="1024" height="1024" fill="{bg}"/>\n' if bg else ''
-    mark = build_hard_mark(cx=512, cy_opt=464, scale=1.0)
+    is_live = variant.lower() in ("live", "praiselive")
+
+    if is_live:
+        scale = 0.86
+        Ls = L_BASE * scale
+        Hs = H_BASE * scale
+        z_step = Z_STEP_BASE * scale
+        z_top = z_step * 2
+        cy_opt = 512.0 - ((2 * Ls * SIN30 + Hs - z_top) / 2.0)  # Exactly 432.88 -> CenterY = 512.0
+        mark = build_hard_mark(cx=512, cy_opt=cy_opt, scale=scale, variant="live")
+    else:
+        mark = build_hard_mark(cx=512, cy_opt=464, scale=1.0, variant="praisestack")
+
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
 {build_defs()}
@@ -318,8 +433,8 @@ def build_avatar_svg(bg=None):
 '''
 
 
-def build_logo_stacked_svg(bg=None, text_color=None):
-    """Stacked / Hero Logo: 1024x1024, mark + pure vector typography ("Stack" bold), fully mask-safe."""
+def build_logo_stacked_svg(bg=None, text_color=None, variant="praisestack"):
+    """Stacked / Hero Logo: 1024x1024, mark + pure vector typography, fully mask-safe."""
     bg_rect = f'  <rect width="1024" height="1024" fill="{bg}"/>\n' if bg else ''
     style = ''
     fill_attr = f'fill="{text_color}"' if text_color else 'class="wordmark"'
@@ -332,27 +447,42 @@ def build_logo_stacked_svg(bg=None, text_color=None):
     }
   </style>\n'''
 
-    target_w = 480.0
-    st = target_w / TOTAL_WORDMARK_WIDTH
-    tx = 512.0 - (target_w / 2.0)
-    ty = 755.0
+    # Keep identical optical font scale between PraiseStack and Praise Live
+    st = 480.0 / TOTAL_STACK_WORDMARK_WIDTH  # ~0.91085
+    is_live = variant.lower() in ("live", "praiselive")
 
-    mark = build_hard_mark(cx=512, cy_opt=388, scale=0.68)
+    if is_live:
+        target_w = TOTAL_LIVE_WORDMARK_WIDTH * st
+        tx = 512.0 - (target_w / 2.0)
+        ty = 755.0
+        mark = build_hard_mark(cx=512, cy_opt=340.0, scale=0.58, variant="live")
+        wordmark_g = f'''  <!-- Vector Wordmark: Praise (Medium) + Live (Bold) -->
+  <g transform="translate({tx:.2f}, {ty:.2f}) scale({st:.5f})" {fill_attr}>
+    <path d="{PRAISE_PATH}" />
+    <path transform="translate({PRAISE_WIDTH}, 0)" d="{LIVE_PATH}" />
+  </g>'''
+    else:
+        target_w = 480.0
+        tx = 512.0 - (target_w / 2.0)
+        ty = 755.0
+        mark = build_hard_mark(cx=512, cy_opt=388, scale=0.68, variant="praisestack")
+        wordmark_g = f'''  <!-- Vector Wordmark: Praise (Medium) + Stack (Bold) -->
+  <g transform="translate({tx:.2f}, {ty:.2f}) scale({st:.5f})" {fill_attr}>
+    <path d="{PRAISE_PATH}" />
+    <path transform="translate({PRAISE_WIDTH}, 0)" d="{STACK_PATH}" />
+  </g>'''
+
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
 {build_defs()}
   </defs>
 {style}{bg_rect}{mark}
-  <!-- Vector Wordmark: Praise (Medium) + Stack (Bold) -->
-  <g transform="translate({tx}, {ty}) scale({st})" {fill_attr}>
-    <path d="{PRAISE_PATH}" />
-    <path transform="translate({PRAISE_WIDTH}, 0)" d="{STACK_PATH}" />
-  </g>
+{wordmark_g}
 </svg>
 '''
 
 
-def build_logo_horizontal_svg(bg=None, text_color=None):
+def build_logo_horizontal_svg(bg=None, text_color=None, variant="praisestack"):
     """Horizontal Logo Lockup: 1400x400, mark on left, vector wordmark on right, ideal for headers."""
     bg_rect = f'  <rect width="1400" height="400" fill="{bg}"/>\n' if bg else ''
     style = ''
@@ -366,22 +496,39 @@ def build_logo_horizontal_svg(bg=None, text_color=None):
     }
   </style>\n'''
 
-    target_w = 780.0
-    st = target_w / TOTAL_WORDMARK_WIDTH
+    # Keep identical optical font scale between PraiseStack and Praise Live
+    st = 780.0 / TOTAL_STACK_WORDMARK_WIDTH  # ~1.48013
     tx = 480.0
     ty = 253.0
+    is_live = variant.lower() in ("live", "praiselive")
 
-    mark = build_hard_mark(cx=240, cy_opt=175, scale=0.52)
+    if is_live:
+        scale_h = 0.44
+        Ls_h = L_BASE * scale_h
+        Hs_h = H_BASE * scale_h
+        z_step_h = Z_STEP_BASE * scale_h
+        z_top_h = z_step_h * 2
+        cy_h = 200.0 - ((2 * Ls_h * SIN30 + Hs_h - z_top_h) / 2.0)  # Exactly 159.52 -> CenterY = 200.0
+        mark = build_hard_mark(cx=240, cy_opt=cy_h, scale=scale_h, variant="live")
+        wordmark_g = f'''  <!-- Vector Wordmark: Praise (Medium) + Live (Bold) -->
+  <g transform="translate({tx:.2f}, {ty:.2f}) scale({st:.5f})" {fill_attr}>
+    <path d="{PRAISE_PATH}" />
+    <path transform="translate({PRAISE_WIDTH}, 0)" d="{LIVE_PATH}" />
+  </g>'''
+    else:
+        mark = build_hard_mark(cx=240, cy_opt=175, scale=0.52, variant="praisestack")
+        wordmark_g = f'''  <!-- Vector Wordmark: Praise (Medium) + Stack (Bold) -->
+  <g transform="translate({tx:.2f}, {ty:.2f}) scale({st:.5f})" {fill_attr}>
+    <path d="{PRAISE_PATH}" />
+    <path transform="translate({PRAISE_WIDTH}, 0)" d="{STACK_PATH}" />
+  </g>'''
+
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 400" width="1400" height="400">
   <defs>
 {build_defs()}
   </defs>
 {style}{bg_rect}{mark}
-  <!-- Vector Wordmark: Praise (Medium) + Stack (Bold) -->
-  <g transform="translate({tx}, {ty}) scale({st})" {fill_attr}>
-    <path d="{PRAISE_PATH}" />
-    <path transform="translate({PRAISE_WIDTH}, 0)" d="{STACK_PATH}" />
-  </g>
+{wordmark_g}
 </svg>
 '''
 
@@ -420,38 +567,39 @@ def convert_svg_to_raster(svg_path: Path, out_path: Path, fmt: str):
     )
 
 
-# ==================== MAIN GENERATION ORCHESTRATION ====================
+# ==================== BRAND ASSET GENERATION ====================
 
-def generate_all_assets(assets_dir: Path):
-    """Generate all SVG, PNG, and JPG assets into the target assets directory."""
-    assets_dir.mkdir(parents=True, exist_ok=True)
-    print(f"🎨 Generating PraiseStack Brand Assets into: {assets_dir.resolve()}")
+def generate_brand_suite(output_dir: Path, variant: str = "praisestack"):
+    """Generate all SVGs, PNGs, and JPGs for a specific brand variant into output_dir."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    brand_name = "Praise Live" if variant.lower() in ("live", "praiselive") else "PraiseStack"
+    print(f"🎨 Generating {brand_name} Brand Assets into: {output_dir.resolve()}")
 
     manifest = [
         # --- Avatar / Profile Picture (1024x1024) ---
-        ("avatar.svg", build_avatar_svg(bg=None)),
-        ("avatar-dark.svg", build_avatar_svg(bg=DARK_BG)),
-        ("avatar-light.svg", build_avatar_svg(bg=LIGHT_BG)),
+        ("avatar.svg", build_avatar_svg(bg=None, variant=variant)),
+        ("avatar-dark.svg", build_avatar_svg(bg=DARK_BG, variant=variant)),
+        ("avatar-light.svg", build_avatar_svg(bg=LIGHT_BG, variant=variant)),
 
         # --- Stacked Logo (1024x1024) ---
-        ("logo.svg", build_logo_stacked_svg(bg=None, text_color=None)),
-        ("logo-dark.svg", build_logo_stacked_svg(bg=DARK_BG, text_color=TEXT_DARK_THEME)),
-        ("logo-light.svg", build_logo_stacked_svg(bg=LIGHT_BG, text_color=TEXT_LIGHT_THEME)),
+        ("logo.svg", build_logo_stacked_svg(bg=None, text_color=None, variant=variant)),
+        ("logo-dark.svg", build_logo_stacked_svg(bg=DARK_BG, text_color=TEXT_DARK_THEME, variant=variant)),
+        ("logo-light.svg", build_logo_stacked_svg(bg=LIGHT_BG, text_color=TEXT_LIGHT_THEME, variant=variant)),
 
         # --- Horizontal Logo (1400x400) ---
-        ("logo-horizontal.svg", build_logo_horizontal_svg(bg=None, text_color=None)),
-        ("logo-horizontal-dark.svg", build_logo_horizontal_svg(bg=DARK_BG, text_color=TEXT_DARK_THEME)),
-        ("logo-horizontal-light.svg", build_logo_horizontal_svg(bg=LIGHT_BG, text_color=TEXT_LIGHT_THEME)),
+        ("logo-horizontal.svg", build_logo_horizontal_svg(bg=None, text_color=None, variant=variant)),
+        ("logo-horizontal-dark.svg", build_logo_horizontal_svg(bg=DARK_BG, text_color=TEXT_DARK_THEME, variant=variant)),
+        ("logo-horizontal-light.svg", build_logo_horizontal_svg(bg=LIGHT_BG, text_color=TEXT_LIGHT_THEME, variant=variant)),
 
         # --- Standalone Logo Icon (1024x1024) ---
-        ("logo-icon.svg", build_avatar_svg(bg=None)),
-        ("logo-icon-dark.svg", build_avatar_svg(bg=DARK_BG)),
-        ("logo-icon-light.svg", build_avatar_svg(bg=LIGHT_BG)),
+        ("logo-icon.svg", build_avatar_svg(bg=None, variant=variant)),
+        ("logo-icon-dark.svg", build_avatar_svg(bg=DARK_BG, variant=variant)),
+        ("logo-icon-light.svg", build_avatar_svg(bg=LIGHT_BG, variant=variant)),
     ]
 
     # Write all SVGs
     for filename, content in manifest:
-        filepath = assets_dir / filename
+        filepath = output_dir / filename
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(content)
         print(f"  ✓ Written SVG: {filename}")
@@ -462,7 +610,7 @@ def generate_all_assets(assets_dir: Path):
         ("avatar.svg", "avatar.png", "png"),
         ("avatar-dark.svg", "avatar-dark.png", "png"),
         ("avatar-dark.svg", "avatar-dark.jpg", "jpeg"),
-        ("avatar-dark.svg", "avatar.jpg", "jpeg"),  # Canonical avatar.jpg default
+        ("avatar-dark.svg", "avatar.jpg", "jpeg"),
         ("avatar-light.svg", "avatar-light.png", "png"),
         ("avatar-light.svg", "avatar-light.jpg", "jpeg"),
 
@@ -470,7 +618,7 @@ def generate_all_assets(assets_dir: Path):
         ("logo.svg", "logo.png", "png"),
         ("logo-dark.svg", "logo-dark.png", "png"),
         ("logo-dark.svg", "logo-dark.jpg", "jpeg"),
-        ("logo-dark.svg", "logo.jpg", "jpeg"),  # Canonical logo.jpg default
+        ("logo-dark.svg", "logo.jpg", "jpeg"),
         ("logo-light.svg", "logo-light.png", "png"),
         ("logo-light.svg", "logo-light.jpg", "jpeg"),
 
@@ -490,18 +638,36 @@ def generate_all_assets(assets_dir: Path):
     ]
 
     for src_name, dest_name, fmt in conversions:
-        src_path = assets_dir / src_name
-        dest_path = assets_dir / dest_name
+        src_path = output_dir / src_name
+        dest_path = output_dir / dest_name
         convert_svg_to_raster(src_path, dest_path, fmt)
         print(f"  ✓ Converted: {src_name} -> {dest_name} ({fmt.upper()})")
 
-    # Generate Preview Verification HTML
-    generate_preview_html(assets_dir)
-    print("\n✨ All brand assets generated successfully with hard edges and bold vector wordmark!")
+
+def sync_praiselive_docs(live_assets_dir: Path, repo_root: Path):
+    """Sync Praise Live brand assets into praiselive/docs/assets for immediate documentation rendering."""
+    docs_assets = repo_root / "praiselive" / "docs" / "assets"
+    if not docs_assets.exists():
+        return
+
+    print(f"\n🔄 Syncing Praise Live assets to docs: {docs_assets.resolve()}")
+    sync_files = [
+        "avatar.png",
+        "logo-horizontal.svg",
+        "logo-horizontal-dark.svg",
+        "logo-horizontal-light.svg",
+        "logo-horizontal.png",
+        "logo-icon.svg",
+    ]
+    for fn in sync_files:
+        src = live_assets_dir / fn
+        if src.exists():
+            shutil.copy2(src, docs_assets / fn)
+            print(f"  ✓ Synced {fn} -> praiselive/docs/assets/{fn}")
 
 
 def generate_preview_html(assets_dir: Path):
-    """Generate an interactive HTML test showcase demonstrating round, square, and squircle masks."""
+    """Generate an interactive HTML test showcase demonstrating PraiseStack and Praise Live with theme & mask switching."""
     html_content = '''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -516,6 +682,7 @@ def generate_preview_html(assets_dir: Path):
       --text: #F8FAFC;
       --text-muted: #94A3B8;
       --accent: #F59E0B;
+      --live-accent: #EF4444;
     }
     body.light {
       --bg: #F8FAFC;
@@ -527,16 +694,28 @@ def generate_preview_html(assets_dir: Path):
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 40px 24px; transition: background 0.25s, color 0.25s; }
     .container { max-width: 1200px; margin: 0 auto; }
-    header { text-align: center; margin-bottom: 40px; }
+    header { text-align: center; margin-bottom: 30px; }
     h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 12px; }
     p.subtitle { color: var(--text-muted); font-size: 1.1rem; }
-    .controls { display: flex; justify-content: center; gap: 12px; margin-top: 24px; }
-    button {
-      background: var(--card-bg); color: var(--text); border: 1px solid var(--card-border);
-      padding: 10px 18px; border-radius: 9999px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    .nav-tabs { display: flex; justify-content: center; gap: 10px; margin-top: 24px; }
+    .nav-tab {
+      background: var(--card-bg); color: var(--text); border: 2px solid var(--card-border);
+      padding: 12px 24px; border-radius: 9999px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 1rem;
     }
-    button:hover { border-color: var(--accent); }
-    .section-title { font-size: 1.4rem; font-weight: 700; margin: 40px 0 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
+    .nav-tab.active {
+      border-color: var(--accent); background: rgba(245, 158, 11, 0.12); color: #FBBF24;
+    }
+    body.live-active .nav-tab.active {
+      border-color: var(--live-accent); background: rgba(239, 68, 68, 0.12); color: #F87171;
+    }
+    .controls { display: flex; justify-content: center; gap: 12px; margin-top: 16px; }
+    button.theme-btn {
+      background: var(--card-bg); color: var(--text); border: 1px solid var(--card-border);
+      padding: 8px 16px; border-radius: 9999px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 0.9rem;
+    }
+    button.theme-btn:hover { border-color: var(--accent); }
+    .section-title { font-size: 1.4rem; font-weight: 700; margin: 40px 0 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: baseline; }
+    .section-title small { font-size: 0.9rem; font-weight: 400; color: var(--text-muted); }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
     .card {
       background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px;
@@ -558,154 +737,276 @@ def generate_preview_html(assets_dir: Path):
     .mask-squircle { border-radius: 22.5%; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     .mask-square { border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     .hero-banner {
-      width: 100%; max-width: 800px; height: 200px; margin: 0 auto 30px; border-radius: 16px;
+      width: 100%; max-width: 900px; height: 220px; margin: 0 auto 30px; border-radius: 16px;
       display: flex; align-items: center; justify-content: center; padding: 20px;
       border: 1px solid var(--card-border);
     }
     .hero-banner img { max-width: 100%; max-height: 100%; }
+    .badge {
+      display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .badge-amber { background: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-scarlet { background: rgba(239, 68, 68, 0.2); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.4); }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>PraiseStack Brand Identity</h1>
-      <p class="subtitle">Unified Avatar &amp; Logo System across Round, Squircle, and Square Masks</p>
+      <h1 id="page-title">PraiseStack Brand Identity</h1>
+      <p class="subtitle" id="page-subtitle">Unified Trinity Chevrons &amp; Bold Vector Typography across Round, Squircle, and Square Masks</p>
+      
+      <div class="nav-tabs">
+        <button class="nav-tab active" id="tab-praisestack" onclick="switchBrand('praisestack')">🏛️ PraiseStack (Org)</button>
+        <button class="nav-tab" id="tab-live" onclick="switchBrand('live')">🔴 Praise Live (App)</button>
+      </div>
+
       <div class="controls">
-        <button onclick="document.body.classList.remove('light')">🌙 Dark Theme (#0B0F19)</button>
-        <button onclick="document.body.classList.add('light')">☀️ Light Theme (#FFFFFF)</button>
+        <button class="theme-btn" onclick="document.body.classList.remove('light')">🌙 Dark Theme (#0B0F19)</button>
+        <button class="theme-btn" onclick="document.body.classList.add('light')">☀️ Light Theme (#FFFFFF)</button>
       </div>
     </header>
 
-    <div class="section-title">The Trinity Identity: Grounded Three Chevrons</div>
-    <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; margin-bottom: 30px; text-align: center;">
-      <img src="chevron-spacing-comparison.png" style="width: 100%; max-width: 1100px; height: auto; border-radius: 10px;" alt="Grounded Three Chevrons Spacing Comparison">
-      <p style="margin-top: 12px; color: var(--text-muted); font-size: 0.95rem;">Three persons in one divine being: Grounded triad pointing heavenward with zero corner gaps and precision hard edges.</p>
+    <div class="section-title">
+      <span>The Trinity Identity: Grounded Three Chevrons</span>
+      <span id="brand-badge" class="badge badge-amber">Organization Level</span>
+    </div>
+    <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 24px; margin-bottom: 30px; text-align: center;">
+      <p id="symbol-description" style="color: var(--text-muted); font-size: 1.05rem; max-width: 800px; margin: 0 auto;">
+        Three persons in one divine being: Grounded triad pointing heavenward with zero corner gaps and precision hard edges. Layer 3: Royal Blue Foundation. Layer 2: Electric Cyan Presentation Platform. Layer 1: Amber Praise Pinnacle with radiant aura.
+      </p>
     </div>
 
-    <div class="section-title">Horizontal Brand Logo Lockup</div>
+    <div class="section-title">
+      <span>Horizontal Brand Logo Lockup</span>
+      <small id="hero-tag">1400 × 400</small>
+    </div>
     <div class="hero-banner" style="background: var(--card-bg);">
       <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="logo-horizontal-dark.svg">
-        <source media="(prefers-color-scheme: light)" srcset="logo-horizontal-light.svg">
-        <img src="logo-horizontal.svg" alt="PraiseStack Logo Horizontal">
+        <source id="hero-dark" media="(prefers-color-scheme: dark)" srcset="logo-horizontal-dark.svg">
+        <source id="hero-light" media="(prefers-color-scheme: light)" srcset="logo-horizontal-light.svg">
+        <img id="hero-img" src="logo-horizontal.svg" alt="Brand Logo Horizontal">
       </picture>
     </div>
 
-    <div class="section-title">Avatar / Icon Mask Adaptation (Hard Edges)</div>
+    <div class="section-title">
+      <span>Avatar / Icon Mask Adaptation (Hard Edges)</span>
+      <small>1024 × 1024</small>
+    </div>
     <div class="grid">
       <div class="card">
         <h3>Circle Mask (Round)</h3>
         <p>GitHub, Discord, Google, Twitter</p>
         <div class="preview-box mask-circle">
-          <img class="preview-img" src="avatar.svg" alt="Avatar Round">
+          <img class="preview-img brand-dyn" data-base="avatar.svg" src="avatar.svg" alt="Avatar Round">
         </div>
-        <code>avatar.svg</code>
+        <code class="code-dyn" data-base="avatar.svg">avatar.svg</code>
       </div>
 
       <div class="card">
         <h3>Squircle Mask (Apple / Org)</h3>
         <p>macOS, iOS icons, GitHub Organizations</p>
         <div class="preview-box mask-squircle">
-          <img class="preview-img" src="avatar.svg" alt="Avatar Squircle">
+          <img class="preview-img brand-dyn" data-base="avatar.svg" src="avatar.svg" alt="Avatar Squircle">
         </div>
-        <code>avatar.svg</code>
+        <code class="code-dyn" data-base="avatar.svg">avatar.svg</code>
       </div>
 
       <div class="card">
         <h3>Square Mask (Standard)</h3>
         <p>Favicons, app stores, traditional tiles</p>
         <div class="preview-box mask-square">
-          <img class="preview-img" src="avatar.svg" alt="Avatar Square">
+          <img class="preview-img brand-dyn" data-base="avatar.svg" src="avatar.svg" alt="Avatar Square">
         </div>
-        <code>avatar.svg</code>
+        <code class="code-dyn" data-base="avatar.svg">avatar.svg</code>
       </div>
     </div>
 
-    <div class="section-title">Stacked Logo Mask Adaptation (Bold "Stack")</div>
+    <div class="section-title">
+      <span>Stacked Logo Mask Adaptation</span>
+      <small>1024 × 1024</small>
+    </div>
     <div class="grid">
       <div class="card">
         <h3>Circle Mask (Stacked)</h3>
         <p>Icon + Typography inside circle</p>
         <div class="preview-box mask-circle">
-          <img class="preview-img" src="logo.svg" alt="Logo Stacked Circle">
+          <img class="preview-img brand-dyn" data-base="logo.svg" src="logo.svg" alt="Logo Stacked Circle">
         </div>
-        <code>logo.svg</code>
+        <code class="code-dyn" data-base="logo.svg">logo.svg</code>
       </div>
 
       <div class="card">
         <h3>Squircle Mask (Stacked)</h3>
         <p>App Store / macOS app badge</p>
         <div class="preview-box mask-squircle">
-          <img class="preview-img" src="logo.svg" alt="Logo Stacked Squircle">
+          <img class="preview-img brand-dyn" data-base="logo.svg" src="logo.svg" alt="Logo Stacked Squircle">
         </div>
-        <code>logo.svg</code>
+        <code class="code-dyn" data-base="logo.svg">logo.svg</code>
       </div>
 
       <div class="card">
         <h3>Square Mask (Stacked)</h3>
         <p>Brand card / Splash screen</p>
         <div class="preview-box mask-square">
-          <img class="preview-img" src="logo.svg" alt="Logo Stacked Square">
+          <img class="preview-img brand-dyn" data-base="logo.svg" src="logo.svg" alt="Logo Stacked Square">
         </div>
-        <code>logo.svg</code>
+        <code class="code-dyn" data-base="logo.svg">logo.svg</code>
       </div>
     </div>
 
-    <div class="section-title">Raster Outputs (PNG &amp; JPG)</div>
+    <div class="section-title">
+      <span>Raster Outputs (PNG &amp; JPG)</span>
+      <small>Native sips Rendering</small>
+    </div>
     <div class="grid">
       <div class="card">
-        <h3>avatar-dark.jpg</h3>
+        <h3 class="lbl-dyn" data-base="avatar-dark.jpg">avatar-dark.jpg</h3>
         <p>Dark scheme JPG for services without alpha</p>
         <div class="preview-box mask-circle">
-          <img class="preview-img" src="avatar-dark.jpg" alt="Avatar Dark JPG">
+          <img class="preview-img brand-dyn" data-base="avatar-dark.jpg" src="avatar-dark.jpg" alt="Avatar Dark JPG">
         </div>
-        <code>avatar-dark.jpg</code>
+        <code class="code-dyn" data-base="avatar-dark.jpg">avatar-dark.jpg</code>
       </div>
 
       <div class="card">
-        <h3>avatar-light.jpg</h3>
+        <h3 class="lbl-dyn" data-base="avatar-light.jpg">avatar-light.jpg</h3>
         <p>Light scheme JPG for services without alpha</p>
         <div class="preview-box mask-circle">
-          <img class="preview-img" src="avatar-light.jpg" alt="Avatar Light JPG">
+          <img class="preview-img brand-dyn" data-base="avatar-light.jpg" src="avatar-light.jpg" alt="Avatar Light JPG">
         </div>
-        <code>avatar-light.jpg</code>
+        <code class="code-dyn" data-base="avatar-light.jpg">avatar-light.jpg</code>
       </div>
 
       <div class="card">
-        <h3>logo-dark.jpg</h3>
-        <p>Stacked Dark JPG upload ready (Bold "Stack")</p>
+        <h3 class="lbl-dyn" data-base="logo-dark.jpg">logo-dark.jpg</h3>
+        <p>Stacked Dark JPG upload ready</p>
         <div class="preview-box mask-squircle">
-          <img class="preview-img" src="logo-dark.jpg" alt="Logo Dark JPG">
+          <img class="preview-img brand-dyn" data-base="logo-dark.jpg" src="logo-dark.jpg" alt="Logo Dark JPG">
         </div>
-        <code>logo-dark.jpg</code>
+        <code class="code-dyn" data-base="logo-dark.jpg">logo-dark.jpg</code>
       </div>
 
       <div class="card">
-        <h3>logo-light.jpg</h3>
-        <p>Stacked Light JPG upload ready (Bold "Stack")</p>
+        <h3 class="lbl-dyn" data-base="logo-light.jpg">logo-light.jpg</h3>
+        <p>Stacked Light JPG upload ready</p>
         <div class="preview-box mask-squircle">
-          <img class="preview-img" src="logo-light.jpg" alt="Logo Light JPG">
+          <img class="preview-img brand-dyn" data-base="logo-light.jpg" src="logo-light.jpg" alt="Logo Light JPG">
         </div>
-        <code>logo-light.jpg</code>
+        <code class="code-dyn" data-base="logo-light.jpg">logo-light.jpg</code>
       </div>
     </div>
   </div>
+
+  <script>
+    function switchBrand(brand) {
+      const isLive = brand === 'live';
+      document.body.classList.toggle('live-active', isLive);
+      
+      document.getElementById('tab-praisestack').classList.toggle('active', !isLive);
+      document.getElementById('tab-live').classList.toggle('active', isLive);
+
+      const title = document.getElementById('page-title');
+      const sub = document.getElementById('page-subtitle');
+      const badge = document.getElementById('brand-badge');
+      const desc = document.getElementById('symbol-description');
+
+      const prefix = isLive ? 'live/' : '';
+
+      if (isLive) {
+        title.innerText = 'Praise Live Brand Identity';
+        sub.innerText = 'Live Worship Engine with Monolithic 3D Production Column & Bold Typography';
+        badge.innerText = 'Praise Live App';
+        badge.className = 'badge badge-scarlet';
+        desc.innerText = 'The Live Production Identity: Canonical PraiseStack Trinity chevrons (Royal Blue Foundation, Electric Cyan Platform, Amber Gold Pinnacle) completed by a monolithic Live Production Red column positioned to align flush with the outer 3D corner of the bounding cube.';
+      } else {
+        title.innerText = 'PraiseStack Brand Identity';
+        sub.innerText = 'Unified Trinity Chevrons & Bold Vector Typography across Round, Squircle, and Square Masks';
+        badge.innerText = 'Organization Level';
+        badge.className = 'badge badge-amber';
+        desc.innerText = 'Three persons in one divine being: Grounded triad pointing heavenward with zero corner gaps and precision hard edges. Layer 3: Royal Blue Foundation. Layer 2: Electric Cyan Presentation Platform. Layer 1: Amber Praise Pinnacle with radiant aura.';
+      }
+
+      // Update hero
+      document.getElementById('hero-dark').srcset = prefix + 'logo-horizontal-dark.svg';
+      document.getElementById('hero-light').srcset = prefix + 'logo-horizontal-light.svg';
+      document.getElementById('hero-img').src = prefix + 'logo-horizontal.svg';
+
+      // Update dynamic images
+      document.querySelectorAll('.brand-dyn').forEach(el => {
+        const base = el.getAttribute('data-base');
+        el.src = prefix + base;
+      });
+
+      // Update dynamic code labels
+      document.querySelectorAll('.code-dyn').forEach(el => {
+        const base = el.getAttribute('data-base');
+        el.innerText = prefix + base;
+      });
+
+      document.querySelectorAll('.lbl-dyn').forEach(el => {
+        const base = el.getAttribute('data-base');
+        el.innerText = prefix + base;
+      });
+    }
+  </script>
 </body>
 </html>
 '''
-    with open(assets_dir / "preview.html", "w", encoding="utf-8") as f:
+    preview_file = assets_dir / "preview.html"
+    with open(preview_file, "w", encoding="utf-8") as f:
         f.write(html_content)
-    print("  ✓ Written Interactive Preview: preview.html")
+    print(f"  ✓ Written Interactive Multi-Brand Preview: {preview_file.resolve()}")
+
+
+# ==================== MAIN ORCHESTRATION ====================
+
+def main():
+    parser = argparse.ArgumentParser(description="PraiseStack Brand Asset Generator")
+    parser.add_argument(
+        "--brand",
+        choices=["all", "praisestack", "live"],
+        default="all",
+        help="Brand variant to generate: 'all' (default), 'praisestack' (org), or 'live' (Praise Live app)."
+    )
+    parser.add_argument(
+        "--assets-dir",
+        type=Path,
+        default=None,
+        help="Target base assets directory (default: .github/assets)."
+    )
+    parser.add_argument(
+        "--sync-docs",
+        action="store_true",
+        default=True,
+        help="Sync generated Praise Live assets to praiselive/docs/assets (default: True)."
+    )
+    args = parser.parse_args()
+
+    script_dir = Path(__file__).resolve().parent
+    repo_root = script_dir.parent.parent
+
+    if args.assets_dir:
+        base_assets_dir = args.assets_dir
+    elif (script_dir.parent / "assets").exists():
+        base_assets_dir = script_dir.parent / "assets"
+    else:
+        base_assets_dir = repo_root / ".github" / "assets"
+
+    base_assets_dir.mkdir(parents=True, exist_ok=True)
+    live_assets_dir = base_assets_dir / "live"
+
+    if args.brand in ("all", "praisestack"):
+        generate_brand_suite(base_assets_dir, variant="praisestack")
+
+    if args.brand in ("all", "live"):
+        generate_brand_suite(live_assets_dir, variant="live")
+        if args.sync_docs:
+            sync_praiselive_docs(live_assets_dir, repo_root)
+
+    # Always generate unified multi-brand preview
+    generate_preview_html(base_assets_dir)
+    print("\n✨ All brand assets generated successfully with hard edges and bold vector wordmark!")
 
 
 if __name__ == "__main__":
-    script_dir = Path(__file__).resolve().parent
-    if (script_dir.parent / "assets").exists() or script_dir.name == "scripts":
-        target_dir = script_dir.parent / "assets"
-    else:
-        target_dir = Path("assets")
-
-    if len(sys.argv) > 1:
-        target_dir = Path(sys.argv[1])
-
-    generate_all_assets(target_dir)
+    main()

@@ -12,6 +12,7 @@
       --text: #F8FAFC;
       --text-muted: #94A3B8;
       --accent: #F59E0B;
+      --live-accent: #EF4444;
     }
     body.light {
       --bg: #F8FAFC;
@@ -23,16 +24,28 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 40px 24px; transition: background 0.25s, color 0.25s; }
     .container { max-width: 1200px; margin: 0 auto; }
-    header { text-align: center; margin-bottom: 40px; }
+    header { text-align: center; margin-bottom: 30px; }
     h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 12px; }
     p.subtitle { color: var(--text-muted); font-size: 1.1rem; }
-    .controls { display: flex; justify-content: center; gap: 12px; margin-top: 24px; }
-    button {
-      background: var(--card-bg); color: var(--text); border: 1px solid var(--card-border);
-      padding: 10px 18px; border-radius: 9999px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    .nav-tabs { display: flex; justify-content: center; gap: 10px; margin-top: 24px; }
+    .nav-tab {
+      background: var(--card-bg); color: var(--text); border: 2px solid var(--card-border);
+      padding: 12px 24px; border-radius: 9999px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 1rem;
     }
-    button:hover { border-color: var(--accent); }
-    .section-title { font-size: 1.4rem; font-weight: 700; margin: 40px 0 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
+    .nav-tab.active {
+      border-color: var(--accent); background: rgba(245, 158, 11, 0.12); color: #FBBF24;
+    }
+    body.live-active .nav-tab.active {
+      border-color: var(--live-accent); background: rgba(239, 68, 68, 0.12); color: #F87171;
+    }
+    .controls { display: flex; justify-content: center; gap: 12px; margin-top: 16px; }
+    button.theme-btn {
+      background: var(--card-bg); color: var(--text); border: 1px solid var(--card-border);
+      padding: 8px 16px; border-radius: 9999px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 0.9rem;
+    }
+    button.theme-btn:hover { border-color: var(--accent); }
+    .section-title { font-size: 1.4rem; font-weight: 700; margin: 40px 0 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: baseline; }
+    .section-title small { font-size: 0.9rem; font-weight: 400; color: var(--text-muted); }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
     .card {
       background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px;
@@ -54,137 +67,217 @@
     .mask-squircle { border-radius: 22.5%; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     .mask-square { border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     .hero-banner {
-      width: 100%; max-width: 800px; height: 200px; margin: 0 auto 30px; border-radius: 16px;
+      width: 100%; max-width: 900px; height: 220px; margin: 0 auto 30px; border-radius: 16px;
       display: flex; align-items: center; justify-content: center; padding: 20px;
       border: 1px solid var(--card-border);
     }
     .hero-banner img { max-width: 100%; max-height: 100%; }
+    .badge {
+      display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .badge-amber { background: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-scarlet { background: rgba(239, 68, 68, 0.2); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.4); }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>PraiseStack Brand Identity</h1>
-      <p class="subtitle">Unified Avatar &amp; Logo System across Round, Squircle, and Square Masks</p>
+      <h1 id="page-title">PraiseStack Brand Identity</h1>
+      <p class="subtitle" id="page-subtitle">Unified Trinity Chevrons &amp; Bold Vector Typography across Round, Squircle, and Square Masks</p>
+      
+      <div class="nav-tabs">
+        <button class="nav-tab active" id="tab-praisestack" onclick="switchBrand('praisestack')">🏛️ PraiseStack (Org)</button>
+        <button class="nav-tab" id="tab-live" onclick="switchBrand('live')">🔴 Praise Live (App)</button>
+      </div>
+
       <div class="controls">
-        <button onclick="document.body.classList.remove('light')">🌙 Dark Theme (#0B0F19)</button>
-        <button onclick="document.body.classList.add('light')">☀️ Light Theme (#FFFFFF)</button>
+        <button class="theme-btn" onclick="document.body.classList.remove('light')">🌙 Dark Theme (#0B0F19)</button>
+        <button class="theme-btn" onclick="document.body.classList.add('light')">☀️ Light Theme (#FFFFFF)</button>
       </div>
     </header>
 
-    <div class="section-title">The Trinity Identity: Grounded Three Chevrons</div>
-    <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; margin-bottom: 30px; text-align: center;">
-      <img src="chevron-spacing-comparison.png" style="width: 100%; max-width: 1100px; height: auto; border-radius: 10px;" alt="Grounded Three Chevrons Spacing Comparison">
-      <p style="margin-top: 12px; color: var(--text-muted); font-size: 0.95rem;">Three persons in one divine being: Grounded triad pointing heavenward with zero corner gaps and precision hard edges.</p>
+    <div class="section-title">
+      <span>The Trinity Identity: Grounded Three Chevrons</span>
+      <span id="brand-badge" class="badge badge-amber">Organization Level</span>
+    </div>
+    <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 24px; margin-bottom: 30px; text-align: center;">
+      <p id="symbol-description" style="color: var(--text-muted); font-size: 1.05rem; max-width: 800px; margin: 0 auto;">
+        Three persons in one divine being: Grounded triad pointing heavenward with zero corner gaps and precision hard edges. Layer 3: Royal Blue Foundation. Layer 2: Electric Cyan Presentation Platform. Layer 1: Amber Praise Pinnacle with radiant aura.
+      </p>
     </div>
 
-    <div class="section-title">Horizontal Brand Logo Lockup</div>
+    <div class="section-title">
+      <span>Horizontal Brand Logo Lockup</span>
+      <small id="hero-tag">1400 × 400</small>
+    </div>
     <div class="hero-banner" style="background: var(--card-bg);">
       <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="logo-horizontal-dark.svg">
-        <source media="(prefers-color-scheme: light)" srcset="logo-horizontal-light.svg">
-        <img src="logo-horizontal.svg" alt="PraiseStack Logo Horizontal">
+        <source id="hero-dark" media="(prefers-color-scheme: dark)" srcset="logo-horizontal-dark.svg">
+        <source id="hero-light" media="(prefers-color-scheme: light)" srcset="logo-horizontal-light.svg">
+        <img id="hero-img" src="logo-horizontal.svg" alt="Brand Logo Horizontal">
       </picture>
     </div>
 
-    <div class="section-title">Avatar / Icon Mask Adaptation (Hard Edges)</div>
+    <div class="section-title">
+      <span>Avatar / Icon Mask Adaptation (Hard Edges)</span>
+      <small>1024 × 1024</small>
+    </div>
     <div class="grid">
       <div class="card">
         <h3>Circle Mask (Round)</h3>
         <p>GitHub, Discord, Google, Twitter</p>
         <div class="preview-box mask-circle">
-          <img class="preview-img" src="avatar.svg" alt="Avatar Round">
+          <img class="preview-img brand-dyn" data-base="avatar.svg" src="avatar.svg" alt="Avatar Round">
         </div>
-        <code>avatar.svg</code>
+        <code class="code-dyn" data-base="avatar.svg">avatar.svg</code>
       </div>
 
       <div class="card">
         <h3>Squircle Mask (Apple / Org)</h3>
         <p>macOS, iOS icons, GitHub Organizations</p>
         <div class="preview-box mask-squircle">
-          <img class="preview-img" src="avatar.svg" alt="Avatar Squircle">
+          <img class="preview-img brand-dyn" data-base="avatar.svg" src="avatar.svg" alt="Avatar Squircle">
         </div>
-        <code>avatar.svg</code>
+        <code class="code-dyn" data-base="avatar.svg">avatar.svg</code>
       </div>
 
       <div class="card">
         <h3>Square Mask (Standard)</h3>
         <p>Favicons, app stores, traditional tiles</p>
         <div class="preview-box mask-square">
-          <img class="preview-img" src="avatar.svg" alt="Avatar Square">
+          <img class="preview-img brand-dyn" data-base="avatar.svg" src="avatar.svg" alt="Avatar Square">
         </div>
-        <code>avatar.svg</code>
+        <code class="code-dyn" data-base="avatar.svg">avatar.svg</code>
       </div>
     </div>
 
-    <div class="section-title">Stacked Logo Mask Adaptation (Bold "Stack")</div>
+    <div class="section-title">
+      <span>Stacked Logo Mask Adaptation</span>
+      <small>1024 × 1024</small>
+    </div>
     <div class="grid">
       <div class="card">
         <h3>Circle Mask (Stacked)</h3>
         <p>Icon + Typography inside circle</p>
         <div class="preview-box mask-circle">
-          <img class="preview-img" src="logo.svg" alt="Logo Stacked Circle">
+          <img class="preview-img brand-dyn" data-base="logo.svg" src="logo.svg" alt="Logo Stacked Circle">
         </div>
-        <code>logo.svg</code>
+        <code class="code-dyn" data-base="logo.svg">logo.svg</code>
       </div>
 
       <div class="card">
         <h3>Squircle Mask (Stacked)</h3>
         <p>App Store / macOS app badge</p>
         <div class="preview-box mask-squircle">
-          <img class="preview-img" src="logo.svg" alt="Logo Stacked Squircle">
+          <img class="preview-img brand-dyn" data-base="logo.svg" src="logo.svg" alt="Logo Stacked Squircle">
         </div>
-        <code>logo.svg</code>
+        <code class="code-dyn" data-base="logo.svg">logo.svg</code>
       </div>
 
       <div class="card">
         <h3>Square Mask (Stacked)</h3>
         <p>Brand card / Splash screen</p>
         <div class="preview-box mask-square">
-          <img class="preview-img" src="logo.svg" alt="Logo Stacked Square">
+          <img class="preview-img brand-dyn" data-base="logo.svg" src="logo.svg" alt="Logo Stacked Square">
         </div>
-        <code>logo.svg</code>
+        <code class="code-dyn" data-base="logo.svg">logo.svg</code>
       </div>
     </div>
 
-    <div class="section-title">Raster Outputs (PNG &amp; JPG)</div>
+    <div class="section-title">
+      <span>Raster Outputs (PNG &amp; JPG)</span>
+      <small>Native sips Rendering</small>
+    </div>
     <div class="grid">
       <div class="card">
-        <h3>avatar-dark.jpg</h3>
+        <h3 class="lbl-dyn" data-base="avatar-dark.jpg">avatar-dark.jpg</h3>
         <p>Dark scheme JPG for services without alpha</p>
         <div class="preview-box mask-circle">
-          <img class="preview-img" src="avatar-dark.jpg" alt="Avatar Dark JPG">
+          <img class="preview-img brand-dyn" data-base="avatar-dark.jpg" src="avatar-dark.jpg" alt="Avatar Dark JPG">
         </div>
-        <code>avatar-dark.jpg</code>
+        <code class="code-dyn" data-base="avatar-dark.jpg">avatar-dark.jpg</code>
       </div>
 
       <div class="card">
-        <h3>avatar-light.jpg</h3>
+        <h3 class="lbl-dyn" data-base="avatar-light.jpg">avatar-light.jpg</h3>
         <p>Light scheme JPG for services without alpha</p>
         <div class="preview-box mask-circle">
-          <img class="preview-img" src="avatar-light.jpg" alt="Avatar Light JPG">
+          <img class="preview-img brand-dyn" data-base="avatar-light.jpg" src="avatar-light.jpg" alt="Avatar Light JPG">
         </div>
-        <code>avatar-light.jpg</code>
+        <code class="code-dyn" data-base="avatar-light.jpg">avatar-light.jpg</code>
       </div>
 
       <div class="card">
-        <h3>logo-dark.jpg</h3>
-        <p>Stacked Dark JPG upload ready (Bold "Stack")</p>
+        <h3 class="lbl-dyn" data-base="logo-dark.jpg">logo-dark.jpg</h3>
+        <p>Stacked Dark JPG upload ready</p>
         <div class="preview-box mask-squircle">
-          <img class="preview-img" src="logo-dark.jpg" alt="Logo Dark JPG">
+          <img class="preview-img brand-dyn" data-base="logo-dark.jpg" src="logo-dark.jpg" alt="Logo Dark JPG">
         </div>
-        <code>logo-dark.jpg</code>
+        <code class="code-dyn" data-base="logo-dark.jpg">logo-dark.jpg</code>
       </div>
 
       <div class="card">
-        <h3>logo-light.jpg</h3>
-        <p>Stacked Light JPG upload ready (Bold "Stack")</p>
+        <h3 class="lbl-dyn" data-base="logo-light.jpg">logo-light.jpg</h3>
+        <p>Stacked Light JPG upload ready</p>
         <div class="preview-box mask-squircle">
-          <img class="preview-img" src="logo-light.jpg" alt="Logo Light JPG">
+          <img class="preview-img brand-dyn" data-base="logo-light.jpg" src="logo-light.jpg" alt="Logo Light JPG">
         </div>
-        <code>logo-light.jpg</code>
+        <code class="code-dyn" data-base="logo-light.jpg">logo-light.jpg</code>
       </div>
     </div>
   </div>
+
+  <script>
+    function switchBrand(brand) {
+      const isLive = brand === 'live';
+      document.body.classList.toggle('live-active', isLive);
+      
+      document.getElementById('tab-praisestack').classList.toggle('active', !isLive);
+      document.getElementById('tab-live').classList.toggle('active', isLive);
+
+      const title = document.getElementById('page-title');
+      const sub = document.getElementById('page-subtitle');
+      const badge = document.getElementById('brand-badge');
+      const desc = document.getElementById('symbol-description');
+
+      const prefix = isLive ? 'live/' : '';
+
+      if (isLive) {
+        title.innerText = 'Praise Live Brand Identity';
+        sub.innerText = 'Live Worship Engine with Monolithic 3D Production Column & Bold Typography';
+        badge.innerText = 'Praise Live App';
+        badge.className = 'badge badge-scarlet';
+        desc.innerText = 'The Live Production Identity: Canonical PraiseStack Trinity chevrons (Royal Blue Foundation, Electric Cyan Platform, Amber Gold Pinnacle) completed by a monolithic Live Production Red column positioned to align flush with the outer 3D corner of the bounding cube.';
+      } else {
+        title.innerText = 'PraiseStack Brand Identity';
+        sub.innerText = 'Unified Trinity Chevrons & Bold Vector Typography across Round, Squircle, and Square Masks';
+        badge.innerText = 'Organization Level';
+        badge.className = 'badge badge-amber';
+        desc.innerText = 'Three persons in one divine being: Grounded triad pointing heavenward with zero corner gaps and precision hard edges. Layer 3: Royal Blue Foundation. Layer 2: Electric Cyan Presentation Platform. Layer 1: Amber Praise Pinnacle with radiant aura.';
+      }
+
+      // Update hero
+      document.getElementById('hero-dark').srcset = prefix + 'logo-horizontal-dark.svg';
+      document.getElementById('hero-light').srcset = prefix + 'logo-horizontal-light.svg';
+      document.getElementById('hero-img').src = prefix + 'logo-horizontal.svg';
+
+      // Update dynamic images
+      document.querySelectorAll('.brand-dyn').forEach(el => {
+        const base = el.getAttribute('data-base');
+        el.src = prefix + base;
+      });
+
+      // Update dynamic code labels
+      document.querySelectorAll('.code-dyn').forEach(el => {
+        const base = el.getAttribute('data-base');
+        el.innerText = prefix + base;
+      });
+
+      document.querySelectorAll('.lbl-dyn').forEach(el => {
+        const base = el.getAttribute('data-base');
+        el.innerText = prefix + base;
+      });
+    }
+  </script>
 </body>
 </html>

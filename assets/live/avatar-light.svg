@@ -110,65 +110,65 @@
   <rect width="1024" height="1024" fill="#FFFFFF"/>
     <!-- LAYER 3: BLUE FOUNDATION CHEVRON -->
     <g filter="url(#softShadow)" stroke-linejoin="round">
-      <path d="M 642.34 607.03 L 512.0 531.78 L 512.0 578.22 L 642.34 653.47 Z" fill="url(#blueLeft)" />
-      <path d="M 512.0 531.78 L 381.66 607.03 L 381.66 653.47 L 512.0 578.22 Z" fill="url(#blueInner)" />
-      <path d="M 296.01 557.58 L 381.66 607.03 L 381.66 653.47 L 296.01 604.02 Z" fill="url(#blueLeft)" />
-      <path d="M 727.99 557.58 L 642.34 607.03 L 642.34 653.47 L 727.99 604.02 Z" fill="url(#blueRight)" />
-      <line x1="381.66" y1="607.03" x2="381.66" y2="653.47"
-            stroke="#93C5FD" stroke-width="1.8920000000000001" stroke-linecap="round" opacity="0.90" />
-      <line x1="642.34" y1="607.03" x2="642.34" y2="653.47"
-            stroke="#93C5FD" stroke-width="1.8920000000000001" stroke-linecap="round" opacity="0.90" />
-      <line x1="512.0" y1="531.78" x2="512.0" y2="578.22"
-            stroke="#93C5FD" stroke-width="1.548" stroke-linecap="round" opacity="0.80" />
-      <path d="M 512.0 432.88 L 727.99 557.58 L 642.34 607.03 L 512.0 531.78 L 381.66 607.03 L 296.01 557.58 Z" fill="url(#blueTop)" stroke="url(#blueRim)" stroke-width="1.72" />
-      <path d="M 512.0 432.88 L 727.99 557.58 L 642.34 607.03 L 512.0 531.78 L 381.66 607.03 L 296.01 557.58 Z" fill="none" stroke="#FFFFFF" stroke-width="1.032" opacity="0.3" />
+      <path d="M 769.64 699.85 L 512.0 551.1 L 512.0 642.9 L 769.64 791.65 Z" fill="url(#blueLeft)" />
+      <path d="M 512.0 551.1 L 254.36 699.85 L 254.36 791.65 L 512.0 642.9 Z" fill="url(#blueInner)" />
+      <path d="M 85.05 602.1 L 254.36 699.85 L 254.36 791.65 L 85.05 693.9 Z" fill="url(#blueLeft)" />
+      <path d="M 938.95 602.1 L 769.64 699.85 L 769.64 791.65 L 938.95 693.9 Z" fill="url(#blueRight)" />
+      <line x1="254.36" y1="699.85" x2="254.36" y2="791.65"
+            stroke="#93C5FD" stroke-width="3.74" stroke-linecap="round" opacity="0.90" />
+      <line x1="769.64" y1="699.85" x2="769.64" y2="791.65"
+            stroke="#93C5FD" stroke-width="3.74" stroke-linecap="round" opacity="0.90" />
+      <line x1="512.0" y1="551.1" x2="512.0" y2="642.9"
+            stroke="#93C5FD" stroke-width="3.06" stroke-linecap="round" opacity="0.80" />
+      <path d="M 512.0 355.6 L 938.95 602.1 L 769.64 699.85 L 512.0 551.1 L 254.36 699.85 L 85.05 602.1 Z" fill="url(#blueTop)" stroke="url(#blueRim)" stroke-width="3.4" />
+      <path d="M 512.0 355.6 L 938.95 602.1 L 769.64 699.85 L 512.0 551.1 L 254.36 699.85 L 85.05 602.1 Z" fill="none" stroke="#FFFFFF" stroke-width="2.04" opacity="0.3" />
     </g>
 
     <!-- LAYER 2: CYAN PLATFORM CHEVRON -->
     <g filter="url(#softShadow)" stroke-linejoin="round">
-      <path d="M 642.34 538.23 L 512.0 462.98 L 512.0 509.42 L 642.34 584.67 Z" fill="url(#cyanLeft)" />
-      <path d="M 512.0 462.98 L 381.66 538.23 L 381.66 584.67 L 512.0 509.42 Z" fill="url(#cyanInner)" />
-      <path d="M 296.01 488.78 L 381.66 538.23 L 381.66 584.67 L 296.01 535.22 Z" fill="url(#cyanLeft)" />
-      <path d="M 727.99 488.78 L 642.34 538.23 L 642.34 584.67 L 727.99 535.22 Z" fill="url(#cyanRight)" />
-      <line x1="381.66" y1="538.23" x2="381.66" y2="584.67"
-            stroke="#E0F2FE" stroke-width="1.8920000000000001" stroke-linecap="round" opacity="0.90" />
-      <line x1="642.34" y1="538.23" x2="642.34" y2="584.67"
-            stroke="#E0F2FE" stroke-width="1.8920000000000001" stroke-linecap="round" opacity="0.90" />
-      <line x1="512.0" y1="462.98" x2="512.0" y2="509.42"
-            stroke="#E0F2FE" stroke-width="1.548" stroke-linecap="round" opacity="0.80" />
-      <path d="M 512.0 364.08 L 727.99 488.78 L 642.34 538.23 L 512.0 462.98 L 381.66 538.23 L 296.01 488.78 Z" fill="url(#cyanTop)" stroke="url(#cyanRim)" stroke-width="1.72" />
-      <path d="M 512.0 364.08 L 727.99 488.78 L 642.34 538.23 L 512.0 462.98 L 381.66 538.23 L 296.01 488.78 Z" fill="none" stroke="#FFFFFF" stroke-width="1.032" opacity="0.38" />
+      <path d="M 769.64 563.85 L 512.0 415.1 L 512.0 506.9 L 769.64 655.65 Z" fill="url(#cyanLeft)" />
+      <path d="M 512.0 415.1 L 254.36 563.85 L 254.36 655.65 L 512.0 506.9 Z" fill="url(#cyanInner)" />
+      <path d="M 85.05 466.1 L 254.36 563.85 L 254.36 655.65 L 85.05 557.9 Z" fill="url(#cyanLeft)" />
+      <path d="M 938.95 466.1 L 769.64 563.85 L 769.64 655.65 L 938.95 557.9 Z" fill="url(#cyanRight)" />
+      <line x1="254.36" y1="563.85" x2="254.36" y2="655.65"
+            stroke="#E0F2FE" stroke-width="3.74" stroke-linecap="round" opacity="0.90" />
+      <line x1="769.64" y1="563.85" x2="769.64" y2="655.65"
+            stroke="#E0F2FE" stroke-width="3.74" stroke-linecap="round" opacity="0.90" />
+      <line x1="512.0" y1="415.1" x2="512.0" y2="506.9"
+            stroke="#E0F2FE" stroke-width="3.06" stroke-linecap="round" opacity="0.80" />
+      <path d="M 512.0 219.6 L 938.95 466.1 L 769.64 563.85 L 512.0 415.1 L 254.36 563.85 L 85.05 466.1 Z" fill="url(#cyanTop)" stroke="url(#cyanRim)" stroke-width="3.4" />
+      <path d="M 512.0 219.6 L 938.95 466.1 L 769.64 563.85 L 512.0 415.1 L 254.36 563.85 L 85.05 466.1 Z" fill="none" stroke="#FFFFFF" stroke-width="2.04" opacity="0.38" />
     </g>
 
     <!-- LAYER 1: AMBER PINNACLE CHEVRON -->
     <g filter="url(#amberAura)" stroke-linejoin="round">
-      <path d="M 642.34 469.43 L 512.0 394.18 L 512.0 440.62 L 642.34 515.87 Z" fill="url(#amberLeft)" />
-      <path d="M 512.0 394.18 L 381.66 469.43 L 381.66 515.87 L 512.0 440.62 Z" fill="url(#amberInner)" />
-      <path d="M 296.01 419.98 L 381.66 469.43 L 381.66 515.87 L 296.01 466.42 Z" fill="url(#amberLeft)" />
-      <path d="M 727.99 419.98 L 642.34 469.43 L 642.34 515.87 L 727.99 466.42 Z" fill="url(#amberRight)" />
-      <line x1="381.66" y1="469.43" x2="381.66" y2="515.87"
-            stroke="#FEF3C7" stroke-width="1.8920000000000001" stroke-linecap="round" opacity="0.90" />
-      <line x1="642.34" y1="469.43" x2="642.34" y2="515.87"
-            stroke="#FEF3C7" stroke-width="1.8920000000000001" stroke-linecap="round" opacity="0.90" />
-      <line x1="512.0" y1="394.18" x2="512.0" y2="440.62"
-            stroke="#FEF3C7" stroke-width="1.548" stroke-linecap="round" opacity="0.80" />
-      <path d="M 512.0 295.28 L 727.99 419.98 L 642.34 469.43 L 512.0 394.18 L 381.66 469.43 L 296.01 419.98 Z" fill="url(#amberTop)" stroke="url(#amberRim)" stroke-width="1.72" />
-      <path d="M 512.0 295.28 L 727.99 419.98 L 642.34 469.43 L 512.0 394.18 L 381.66 469.43 L 296.01 419.98 Z" fill="none" stroke="#FFFFFF" stroke-width="1.032" opacity="0.5" />
+      <path d="M 769.64 427.85 L 512.0 279.1 L 512.0 370.9 L 769.64 519.65 Z" fill="url(#amberLeft)" />
+      <path d="M 512.0 279.1 L 254.36 427.85 L 254.36 519.65 L 512.0 370.9 Z" fill="url(#amberInner)" />
+      <path d="M 85.05 330.1 L 254.36 427.85 L 254.36 519.65 L 85.05 421.9 Z" fill="url(#amberLeft)" />
+      <path d="M 938.95 330.1 L 769.64 427.85 L 769.64 519.65 L 938.95 421.9 Z" fill="url(#amberRight)" />
+      <line x1="254.36" y1="427.85" x2="254.36" y2="519.65"
+            stroke="#FEF3C7" stroke-width="3.74" stroke-linecap="round" opacity="0.90" />
+      <line x1="769.64" y1="427.85" x2="769.64" y2="519.65"
+            stroke="#FEF3C7" stroke-width="3.74" stroke-linecap="round" opacity="0.90" />
+      <line x1="512.0" y1="279.1" x2="512.0" y2="370.9"
+            stroke="#FEF3C7" stroke-width="3.06" stroke-linecap="round" opacity="0.80" />
+      <path d="M 512.0 83.6 L 938.95 330.1 L 769.64 427.85 L 512.0 279.1 L 254.36 427.85 L 85.05 330.1 Z" fill="url(#amberTop)" stroke="url(#amberRim)" stroke-width="3.4" />
+      <path d="M 512.0 83.6 L 938.95 330.1 L 769.64 427.85 L 512.0 279.1 L 254.36 427.85 L 85.05 330.1 Z" fill="none" stroke="#FFFFFF" stroke-width="2.04" opacity="0.5" />
     </g>
     <!-- LIVE PRODUCTION MONOLITHIC COLUMN (ALIGNED TO 3D BOUNDING CUBE CORNER) -->
     <g filter="url(#liveRedAura)" stroke-linejoin="round">
-      <path d="M 420.39 491.79 L 512.0 544.68 L 512.0 728.72 L 420.39 675.83 Z" fill="url(#queueLeft)" />
-      <path d="M 603.61 491.79 L 512.0 544.68 L 512.0 728.72 L 603.61 675.83 Z" fill="url(#queueRight)" />
+      <path d="M 330.91 472.05 L 512.0 576.6 L 512.0 940.4 L 330.91 835.85 Z" fill="url(#queueLeft)" />
+      <path d="M 693.09 472.05 L 512.0 576.6 L 512.0 940.4 L 693.09 835.85 Z" fill="url(#queueRight)" />
       <!-- Vertical Corner Seam -->
-      <line x1="512.0" y1="544.68" x2="512.0" y2="728.72"
-            stroke="#FECACA" stroke-width="2.064" stroke-linecap="round" opacity="0.95" />
+      <line x1="512.0" y1="576.6" x2="512.0" y2="940.4"
+            stroke="#FECACA" stroke-width="4.08" stroke-linecap="round" opacity="0.95" />
       <!-- Outer Vertical Edges -->
-      <line x1="420.39" y1="491.79" x2="420.39" y2="675.83"
-            stroke="#FECACA" stroke-width="1.3760000000000001" stroke-linecap="round" opacity="0.65" />
-      <line x1="603.61" y1="491.79" x2="603.61" y2="675.83"
-            stroke="#FECACA" stroke-width="1.3760000000000001" stroke-linecap="round" opacity="0.65" />
+      <line x1="330.91" y1="472.05" x2="330.91" y2="835.85"
+            stroke="#FECACA" stroke-width="2.72" stroke-linecap="round" opacity="0.65" />
+      <line x1="693.09" y1="472.05" x2="693.09" y2="835.85"
+            stroke="#FECACA" stroke-width="2.72" stroke-linecap="round" opacity="0.65" />
       <!-- Top Face -->
-      <path d="M 512.0 438.9 L 603.61 491.79 L 512.0 544.68 L 420.39 491.79 Z" fill="url(#queueTop)" stroke="url(#queueRim)" stroke-width="1.72" />
-      <path d="M 512.0 438.9 L 603.61 491.79 L 512.0 544.68 L 420.39 491.79 Z" fill="none" stroke="#FFFFFF" stroke-width="1.032" opacity="0.60" />
+      <path d="M 512.0 367.5 L 693.09 472.05 L 512.0 576.6 L 330.91 472.05 Z" fill="url(#queueTop)" stroke="url(#queueRim)" stroke-width="3.4" />
+      <path d="M 512.0 367.5 L 693.09 472.05 L 512.0 576.6 L 330.91 472.05 Z" fill="none" stroke="#FFFFFF" stroke-width="2.04" opacity="0.60" />
     </g>
 </svg>

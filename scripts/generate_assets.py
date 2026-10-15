@@ -413,16 +413,22 @@ def build_avatar_svg(bg=None, variant="praisestack"):
     bg_rect = f'  <rect width="1024" height="1024" fill="{bg}"/>\n' if bg else ''
     is_live = variant.lower() in ("live", "praiselive")
 
+    # Scale 1.70 fills ~84% of the 1024x1024 canvas (bounding box ~854x857), leaving ~84px margin.
+    # This matches macOS app icon guidelines (824-864pt symbol grid), eliminates excessive whitespace
+    # for dock icons, favicons, and nav headers, while keeping shadows/auras fully unclipped and
+    # preserving generous mask safety across circle (R=512) and squircle masks.
+    scale = 1.70
+    Ls = L_BASE * scale
+    Hs = H_BASE * scale
+    Ws = W_ARM_BASE * scale
+    z_step = Z_STEP_BASE * scale
+    z_top = z_step * 2
     if is_live:
-        scale = 0.86
-        Ls = L_BASE * scale
-        Hs = H_BASE * scale
-        z_step = Z_STEP_BASE * scale
-        z_top = z_step * 2
-        cy_opt = 512.0 - ((2 * Ls * SIN30 + Hs - z_top) / 2.0)  # Exactly 432.88 -> CenterY = 512.0
-        mark = build_hard_mark(cx=512, cy_opt=cy_opt, scale=scale, variant="live")
+        cy_opt = 512.0 - ((2 * Ls * SIN30 + Hs - z_top) / 2.0)  # CenterY = 512.0 for live (with corner column)
     else:
-        mark = build_hard_mark(cx=512, cy_opt=464, scale=1.0, variant="praisestack")
+        cy_opt = 512.0 - (((Ws + Ls) * SIN30 + Hs - z_top) / 2.0)  # CenterY = 512.0 for praisestack (chevrons only)
+    mark_var = "live" if is_live else "praisestack"
+    mark = build_hard_mark(cx=512, cy_opt=cy_opt, scale=scale, variant=mark_var)
 
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
@@ -451,11 +457,19 @@ def build_logo_stacked_svg(bg=None, text_color=None, variant="praisestack"):
     st = 480.0 / TOTAL_STACK_WORDMARK_WIDTH  # ~0.91085
     is_live = variant.lower() in ("live", "praiselive")
 
+    scale_s = 0.68
+    Ls_s = L_BASE * scale_s
+    Hs_s = H_BASE * scale_s
+    z_step_s = Z_STEP_BASE * scale_s
+    z_top_s = z_step_s * 2
+    # Place mark center at Y ~ 425 to balance evenly above the wordmark at ty=755
+    cy_s = 425.0 - ((2 * Ls_s * SIN30 + Hs_s - z_top_s) / 2.0)
+
     if is_live:
         target_w = TOTAL_LIVE_WORDMARK_WIDTH * st
         tx = 512.0 - (target_w / 2.0)
         ty = 755.0
-        mark = build_hard_mark(cx=512, cy_opt=340.0, scale=0.58, variant="live")
+        mark = build_hard_mark(cx=512, cy_opt=cy_s, scale=scale_s, variant="live")
         wordmark_g = f'''  <!-- Vector Wordmark: Praise (Medium) + Live (Bold) -->
   <g transform="translate({tx:.2f}, {ty:.2f}) scale({st:.5f})" {fill_attr}>
     <path d="{PRAISE_PATH}" />
@@ -465,7 +479,7 @@ def build_logo_stacked_svg(bg=None, text_color=None, variant="praisestack"):
         target_w = 480.0
         tx = 512.0 - (target_w / 2.0)
         ty = 755.0
-        mark = build_hard_mark(cx=512, cy_opt=388, scale=0.68, variant="praisestack")
+        mark = build_hard_mark(cx=512, cy_opt=cy_s, scale=scale_s, variant="praisestack")
         wordmark_g = f'''  <!-- Vector Wordmark: Praise (Medium) + Stack (Bold) -->
   <g transform="translate({tx:.2f}, {ty:.2f}) scale({st:.5f})" {fill_attr}>
     <path d="{PRAISE_PATH}" />
@@ -498,25 +512,38 @@ def build_logo_horizontal_svg(bg=None, text_color=None, variant="praisestack"):
 
     # Keep identical optical font scale between PraiseStack and Praise Live
     st = 780.0 / TOTAL_STACK_WORDMARK_WIDTH  # ~1.48013
-    tx = 480.0
     ty = 253.0
     is_live = variant.lower() in ("live", "praiselive")
 
+    scale_h = 0.52
+    Ls_h = L_BASE * scale_h
+    Hs_h = H_BASE * scale_h
+    z_step_h = Z_STEP_BASE * scale_h
+    z_top_h = z_step_h * 2
+    cy_h = 200.0 - ((2 * Ls_h * SIN30 + Hs_h - z_top_h) / 2.0)  # Perfectly centered at CenterY = 200.0
+
+    # Horizontally center [mark + gap + wordmark] on the 1400px canvas
+    mark_w = 2.0 * Ls_h * COS30
+    gap = 100.0
     if is_live:
-        scale_h = 0.44
-        Ls_h = L_BASE * scale_h
-        Hs_h = H_BASE * scale_h
-        z_step_h = Z_STEP_BASE * scale_h
-        z_top_h = z_step_h * 2
-        cy_h = 200.0 - ((2 * Ls_h * SIN30 + Hs_h - z_top_h) / 2.0)  # Exactly 159.52 -> CenterY = 200.0
-        mark = build_hard_mark(cx=240, cy_opt=cy_h, scale=scale_h, variant="live")
+        wm_w = TOTAL_LIVE_WORDMARK_WIDTH * st
+        total_w = mark_w + gap + wm_w
+        left_margin = (1400.0 - total_w) / 2.0
+        cx = left_margin + mark_w / 2.0
+        tx = left_margin + mark_w + gap
+        mark = build_hard_mark(cx=cx, cy_opt=cy_h, scale=scale_h, variant="live")
         wordmark_g = f'''  <!-- Vector Wordmark: Praise (Medium) + Live (Bold) -->
   <g transform="translate({tx:.2f}, {ty:.2f}) scale({st:.5f})" {fill_attr}>
     <path d="{PRAISE_PATH}" />
     <path transform="translate({PRAISE_WIDTH}, 0)" d="{LIVE_PATH}" />
   </g>'''
     else:
-        mark = build_hard_mark(cx=240, cy_opt=175, scale=0.52, variant="praisestack")
+        wm_w = TOTAL_STACK_WORDMARK_WIDTH * st
+        total_w = mark_w + gap + wm_w
+        left_margin = (1400.0 - total_w) / 2.0
+        cx = left_margin + mark_w / 2.0
+        tx = left_margin + mark_w + gap
+        mark = build_hard_mark(cx=cx, cy_opt=cy_h, scale=scale_h, variant="praisestack")
         wordmark_g = f'''  <!-- Vector Wordmark: Praise (Medium) + Stack (Bold) -->
   <g transform="translate({tx:.2f}, {ty:.2f}) scale({st:.5f})" {fill_attr}>
     <path d="{PRAISE_PATH}" />
@@ -651,19 +678,10 @@ def sync_praiselive_docs(live_assets_dir: Path, repo_root: Path):
         return
 
     print(f"\n🔄 Syncing Praise Live assets to docs: {docs_assets.resolve()}")
-    sync_files = [
-        "avatar.png",
-        "logo-horizontal.svg",
-        "logo-horizontal-dark.svg",
-        "logo-horizontal-light.svg",
-        "logo-horizontal.png",
-        "logo-icon.svg",
-    ]
-    for fn in sync_files:
-        src = live_assets_dir / fn
-        if src.exists():
-            shutil.copy2(src, docs_assets / fn)
-            print(f"  ✓ Synced {fn} -> praiselive/docs/assets/{fn}")
+    for src_file in sorted(live_assets_dir.glob("*")):
+        if src_file.is_file():
+            shutil.copy2(src_file, docs_assets / src_file.name)
+            print(f"  ✓ Synced {src_file.name} -> praiselive/docs/assets/{src_file.name}")
 
 
 def generate_preview_html(assets_dir: Path):
